@@ -15,6 +15,12 @@ import (
 	"strings"
 )
 
+func Show(data any) {
+	b, _ := json.Marshal(data)
+	fmt.Println(string(b))
+
+}
+
 // 获取订阅
 func GetUserSub(url string, subType string) string {
 	//查找用户
@@ -28,7 +34,7 @@ func GetUserSub(url string, subType string) string {
 	err = global.DB.Where("id = ?", u.SubscribeInfo.GoodsID).Preload("Nodes", func(db *gorm.DB) *gorm.DB { return db.Order("node_order") }).Find(&goods).Error
 	// 计算剩余天数，流量
 	expiredTime := u.SubscribeInfo.ExpiredAt.Format("2006-01-02")
-	expiredBd1 := (float64(u.SubscribeInfo.T - u.SubscribeInfo.U - u.SubscribeInfo.D)) / 1024 / 1024 / 1024 //B->KB->MB->GB
+	expiredBd1 := (float64(u.SubscribeInfo.T - u.SubscribeInfo.U - u.SubscribeInfo.D)) / 1024 / 1024 / 1024
 	expiredBd2 := strconv.FormatFloat(expiredBd1, 'f', 2, 64)
 
 	var firstNode = model.Node{
@@ -137,12 +143,6 @@ func V2rayNGVmess(node model.Node, user model.User) string {
 		Fp:           "",
 		Sni:          "",
 	}
-	//是否中转
-	if node.EnableTransfer {
-		vmess.Address = node.TransferAddress
-		vmess.Port = fmt.Sprintf("%d", node.TransferPort)
-	}
-
 	switch node.Network {
 	case "ws":
 		vmess.Disguisetype = node.Type
@@ -178,14 +178,7 @@ func V2rayNGVlessTrojan(node model.Node, user model.User) string {
 		vlessUrl.Scheme = "trojan"
 	}
 	vlessUrl.User = url.UserPassword(user.UUID.String(), "")
-
-	//是否中转
-	if node.EnableTransfer {
-		vlessUrl.Host = node.TransferAddress + ":" + strconv.FormatInt(node.TransferPort, 10)
-	} else {
-		vlessUrl.Host = node.Address + ":" + strconv.FormatInt(node.Port, 10)
-	}
-
+	vlessUrl.Host = node.Address + ":" + strconv.FormatInt(node.Port, 10)
 	values := url.Values{}
 	switch vlessUrl.Scheme {
 	case "vless":
@@ -255,13 +248,7 @@ func V2rayNGShadowsocks(n model.Node, user model.User) string {
 		ss.User = url.UserPassword(p, "")
 	}
 
-	//是否中转
-	if n.EnableTransfer {
-		ss.Host = n.TransferAddress + ":" + fmt.Sprintf("%d", n.TransferPort)
-	} else {
-		ss.Host = n.Address + ":" + fmt.Sprintf("%d", n.Port)
-	}
-
+	ss.Host = n.Address + ":" + fmt.Sprintf("%d", n.Port)
 	ss.Fragment = n.Remarks
 	return strings.ReplaceAll(ss.String(), ":@", "@")
 
