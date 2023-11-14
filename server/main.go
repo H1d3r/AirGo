@@ -1,9 +1,7 @@
 package main
 
 import (
-	"AirGo/global"
 	"AirGo/initialize"
-	"AirGo/service"
 	"AirGo/utils/os_plugin"
 	"flag"
 	"fmt"
@@ -19,26 +17,24 @@ var version = flag.Bool("version", false, "版本")
 var update = flag.Bool("update", false, "升级核心")
 
 func main() {
-
 	switch runtime.GOOS {
-	case "darwin":
+	case "darwin": //开发环境
 		initialize.InitializeAll() //初始化系统资源并启动路由
-
 		//global.VP = initialize.InitViper() //初始化Viper
 		//global.DB = initialize.Gorm()      //gorm连接数据库
 		//initialize.InitServer()            //加载全局系统配置
-	default:
+	default: //生产环境
 		flag.Parse()
 		if *start {
 			initialize.InitializeAll() //初始化系统资源并启动路由
 		} else if *stop {
-			os_plugin.StopProcess("AirGo") //停止
+			os_plugin.StopProcess("AirGo")
 		} else if *resetAdmin {
-			global.VP = initialize.InitViper() //初始化Viper
-			global.DB = initialize.Gorm()      //gorm连接数据库
-			service.ResetAdminPassword()       // 重置管理员密码
+			initialize.InitializeResetAdmin()
 		} else if *version {
 			fmt.Println(v)
+		} else if *update {
+			initialize.InitializeUpdate()
 		}
 	}
 
