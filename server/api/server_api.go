@@ -47,16 +47,18 @@ func GetSetting(ctx *gin.Context) {
 // 获取公共系统设置
 func GetPublicSetting(ctx *gin.Context) {
 	var ps = model.PublicSystem{
-		EnableRegister:       global.Server.System.EnableRegister,
-		EnableEmailCode:      global.Server.System.EnableEmailCode,
-		EnableLoginEmailCode: global.Server.System.EnableLoginEmailCode,
-		RebateRate:           global.Server.System.RebateRate,
-		BackendUrl:           global.Server.System.BackendUrl,
-		EnabledClockIn:       global.Server.System.EnabledClockIn,
+		EnableRegister:          global.Server.Subscribe.EnableRegister,
+		EnableEmailCode:         global.Server.Subscribe.EnableEmailCode,
+		EnableLoginEmailCode:    global.Server.Subscribe.EnableLoginEmailCode,
+		RebateRate:              global.Server.Subscribe.RebateRate,
+		BackendUrl:              global.Server.Subscribe.BackendUrl,
+		EnabledClockIn:          global.Server.Subscribe.EnabledClockIn,
+		AcceptableEmailSuffixes: global.Server.Subscribe.AcceptableEmailSuffixes,
 	}
 	response.OK("GetPublicSetting success", ps, ctx)
 }
 
+// 更新系统设置
 func UpdateSetting(ctx *gin.Context) {
 	var setting model.Server
 	err := ctx.ShouldBind(&setting)

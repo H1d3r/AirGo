@@ -193,7 +193,7 @@ func InsertInto(db *gorm.DB) error {
 		{ParentID: 1, Path: "/admin/order", Name: "adminOrder", Component: "/admin/order/index.vue", Meta: model.Meta{Title: "订单", Icon: "iconfont icon--chaifenhang"}},       //id==5
 		{ParentID: 1, Path: "/admin/node", Name: "adminNode", Component: "/admin/node/index.vue", Meta: model.Meta{Title: "节点", Icon: "iconfont icon-shuxingtu"}},             //id==6
 		{ParentID: 1, Path: "/admin/shop", Name: "adminShop", Component: "/admin/shop/index.vue", Meta: model.Meta{Title: "商品", Icon: "iconfont icon-zhongduancanshuchaxun"}}, //id==7
-		{ParentID: 1, Path: "/admin/system", Name: "system", Component: "/admin/system/index.vue", Meta: model.Meta{Title: "系统设置", Icon: "iconfont icon-xitongshezhi"}},       //id==8
+		{ParentID: 1, Path: "/admin/system", Name: "system", Component: "/admin/system/index.vue", Meta: model.Meta{Title: "系统", Icon: "iconfont icon-xitongshezhi"}},         //id==8
 		{ParentID: 1, Path: "/admin/article", Name: "article", Component: "/admin/article/index.vue", Meta: model.Meta{Title: "文章", Icon: "iconfont icon-huanjingxingqiu"}},   //id==9
 		{ParentID: 1, Path: "/admin/coupon", Name: "coupon", Component: "/admin/coupon/index.vue", Meta: model.Meta{Title: "折扣码", Icon: "ele-ShoppingBag"}},                   //id==10
 		{ParentID: 1, Path: "/admin/access", Name: "access", Component: "/admin/access/index.vue", Meta: model.Meta{Title: "访问控制", Icon: "ele-ChromeFilled"}},                 //id==11
@@ -203,7 +203,7 @@ func InsertInto(db *gorm.DB) error {
 		{ParentID: 0, Path: "/myOrder", Name: "myOrder", Component: "/myOrder/index.vue", Meta: model.Meta{Title: "我的订单", Icon: "iconfont icon--chaifenhang"}},          //14
 		{ParentID: 0, Path: "/personal", Name: "personal", Component: "/personal/index.vue", Meta: model.Meta{Title: "个人信息", Icon: "iconfont icon-gerenzhongxin"}},      //15
 		{ParentID: 0, Path: "/serverStatus", Name: "serverStatus", Component: "/serverStatus/index.vue", Meta: model.Meta{Title: "节点状态", Icon: "iconfont icon-putong"}}, //16
-		{ParentID: 0, Path: "/gallery", Name: "gallery", Component: "/gallery/index.vue", Meta: model.Meta{Title: "无限图库", Icon: "iconfont icon-step"}},                  //17
+		{ParentID: 0, Path: "/gallery", Name: "gallery", Component: "/gallery/index.vue", Meta: model.Meta{Title: "图库", Icon: "iconfont icon-step"}},                    //17
 		{ParentID: 0, Path: "/income", Name: "income", Component: "/income/index.vue", Meta: model.Meta{Title: "营收概览", Icon: "iconfont icon-xingqiu"}},                  //18
 		{ParentID: 0, Path: "/isp", Name: "isp", Component: "/isp/index.vue", Meta: model.Meta{Title: "套餐监控", Icon: "iconfont icon-tongzhi1"}},                          //19
 
@@ -347,6 +347,7 @@ func InsertInto(db *gorm.DB) error {
 		{Ptype: "p", V0: "1", V1: apiPre + "/node/updateNode", V2: "POST"},
 		{Ptype: "p", V0: "1", V1: apiPre + "/node/getTraffic", V2: "POST"},
 		{Ptype: "p", V0: "1", V1: apiPre + "/node/nodeSort", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/node/createx25519", V2: "GET"},
 
 		{Ptype: "p", V0: "1", V1: apiPre + "/node/newNodeShared", V2: "POST"},
 		{Ptype: "p", V0: "1", V1: apiPre + "/node/getNodeSharedList", V2: "GET"},
@@ -364,11 +365,10 @@ func InsertInto(db *gorm.DB) error {
 		{Ptype: "p", V0: "1", V1: apiPre + "/order/completedOrder", V2: "POST"},
 		{Ptype: "p", V0: "1", V1: apiPre + "/order/getMonthOrderStatistics", V2: "POST"},
 
-		//system
-		{Ptype: "p", V0: "1", V1: apiPre + "/system/updateThemeConfig", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPre + "/system/getSetting", V2: "GET"},
-		{Ptype: "p", V0: "1", V1: apiPre + "/system/updateSetting", V2: "POST"},
-		{Ptype: "p", V0: "1", V1: apiPre + "/system/createx25519", V2: "GET"},
+		//server
+		{Ptype: "p", V0: "1", V1: apiPre + "/server/updateThemeConfig", V2: "POST"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/server/getSetting", V2: "GET"},
+		{Ptype: "p", V0: "1", V1: apiPre + "/server/updateSetting", V2: "POST"},
 
 		//upload
 		{Ptype: "p", V0: "1", V1: apiPre + "/upload/newPictureUrl", V2: "POST"},
@@ -461,6 +461,9 @@ func InsertInto(db *gorm.DB) error {
 		Email: model.Email{
 			EmailContent: text1,
 			EmailSubject: "hello，我的宝！",
+		},
+		Subscribe: model.Subscribe{
+			AcceptableEmailSuffixes: "@qq.com\n@foxmail.com\n@gmail.com\n@163.com\n@126.com\n@yeah.net",
 		},
 	}
 	if err := global.DB.Create(&settingData).Error; err != nil {

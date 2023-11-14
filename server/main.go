@@ -16,6 +16,7 @@ var start = flag.Bool("start", false, "启动")
 var stop = flag.Bool("stop", false, "停止")
 var resetAdmin = flag.Bool("resetAdmin", false, "重置管理员账户密码")
 var version = flag.Bool("version", false, "版本")
+var update = flag.Bool("update", false, "升级核心")
 
 func main() {
 
@@ -26,7 +27,6 @@ func main() {
 		//global.VP = initialize.InitViper() //初始化Viper
 		//global.DB = initialize.Gorm()      //gorm连接数据库
 		//initialize.InitServer()            //加载全局系统配置
-
 	default:
 		flag.Parse()
 		if *start {

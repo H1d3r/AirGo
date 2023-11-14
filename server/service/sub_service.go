@@ -39,7 +39,7 @@ func GetUserSub(url string, subType string) string {
 
 	var firstNode = model.Node{
 		Remarks:  "到期时间:" + expiredTime,
-		Address:  global.Server.System.SubName,
+		Address:  global.Server.Subscribe.SubName,
 		Port:     6666,
 		Aid:      0,
 		Network:  "ws",
@@ -48,7 +48,7 @@ func GetUserSub(url string, subType string) string {
 	}
 	var secondNode = model.Node{
 		Remarks:  "剩余流量:" + expiredBd2 + "GB",
-		Address:  global.Server.System.SubName,
+		Address:  global.Server.Subscribe.SubName,
 		Port:     6666,
 		Aid:      0,
 		Network:  "ws",
@@ -284,7 +284,7 @@ func ClashSubscribe(nodes *[]model.Node, user model.User) string {
 		proxiesArr = append(proxiesArr, proxy)
 	}
 	var proxyGroup1 = model.ClashProxyGroup{
-		Name:    global.Server.System.SubName,
+		Name:    global.Server.Subscribe.SubName,
 		Type:    "select",
 		Proxies: nameArr,
 	}
@@ -324,7 +324,7 @@ func ClashSubscribe(nodes *[]model.Node, user model.User) string {
 		"IP-CIDR,100.64.0.0/10,DIRECT",
 		"IP-CIDR,224.0.0.0/4,DIRECT",
 		"IP-CIDR6,fe80::/10,DIRECT",
-		"MATCH," + global.Server.System.SubName,
+		"MATCH," + global.Server.Subscribe.SubName,
 	}
 	res, err := yaml.Marshal(clashYaml)
 	if err != nil {

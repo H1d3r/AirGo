@@ -27,9 +27,9 @@ func InitializeAll() {
 	InitLocalCache()    //local cache
 	InitBase64Captcha() //Base64Captcha
 	InitCrontab()       //定时任务
-	//InitAlipayClient()  //alipay
-	InitEmailDialer() //gomail Dialer
-	InitWebsocket()   //websocket
-	InitRatelimit()   //限流
-	InitRouter()      //初始总路由
+	InitEmailDialer()   //gomail Dialer
+	InitWebsocket()     //websocket
+	InitRatelimit()     //限流
+	InitGoroutinePool() //初始化线程池
+	InitRouter()        //初始总路由，放在最后
 }
