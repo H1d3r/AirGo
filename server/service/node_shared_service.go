@@ -1,13 +1,13 @@
 package service
 
 import (
-	"AirGo/global"
-	"AirGo/model"
-	"AirGo/utils/encrypt_plugin"
-	"AirGo/utils/net_plugin"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/ppoonk/AirGo/global"
+	"github.com/ppoonk/AirGo/model"
+	"github.com/ppoonk/AirGo/utils/encrypt_plugin"
+	"github.com/ppoonk/AirGo/utils/net_plugin"
 	"net/url"
 	"strconv"
 	"strings"
@@ -15,8 +15,6 @@ import (
 )
 
 func ParseVMessLink(link string) *model.NodeShared {
-	// vmess 例子 {"add":"AirGo","aid":"0","alpn":"h2,http/1.1","fp":"qq","host":"www.baidu.com","id":"e0d5fe65-a5d1-4b8a-8d40-ed92a6a35d8b","net":"ws","path":"/path","port":"6666","ps":"到期时间:2024-03-06  |  剩余流量:20.00GB","scy":"auto","sni":"www.baidu.com","tls":"tls","type":"","v":"2"}
-	// vmess 例子 {"add":"AirGo","aid":"0","alpn":"","fp":"","host":"www.baidu.com","id":"e0d5fe65-a5d1-4b8a-8d40-ed92a6a35d8b","net":"ws","path":"/path","port":"6666","ps":"到期时间:2024-03-06  |  剩余流量:20.00GB","scy":"auto","sni":"","tls":"reality","type":"","v":"2"}
 	node := new(model.NodeShared)
 	node.Enabled = true
 	node.NodeType = "vmess"
@@ -119,9 +117,6 @@ func ParseVMessLink(link string) *model.NodeShared {
 }
 
 func ParseVLessLink(link string) *model.NodeShared {
-	// vless例子 vless://d342d11e-d424-4583-b36e-524ab1f0afa7@1.6.1.1:443?path=%2F%3Fed%3D2048&security=tls&flow=xtls-rprx-vision-udp443&encryption=none&alpn=h2,http/1.1&host=v2.airgoo.link&fp=randomized&type=ws&sni=v2.airgoo.link#v2.airgoo.link
-	// vless例子 vless://d342d11e-d424-4583-b36e-524ab1f0afa7@1.6.1.4:443?path=%2F%3Fed%3D2048&security=reality&flow=xtls-rprx-vision-udp443&encryption=none&pbk=ppkk&host=v2.airgoo.link&fp=randomized&spx=ssxx&type=ws&sni=v2.airgoo.link&sid=ssdd#v2.airgoo.link
-	// [scheme:][//[userinfo@]host][/]path[?query][#fragment]
 	u, err := url.Parse(link)
 	if err != nil {
 		return nil
@@ -160,25 +155,29 @@ func ParseVLessLink(link string) *model.NodeShared {
 	if urlQuery.Get("type") != "" {
 		node.Network = urlQuery.Get("type")
 	}
-	if urlQuery.Get("security") != "" {
-		node.Security = urlQuery.Get("security")
+	if urlQuery.Get("headerType") != "" {
+		node.Type = urlQuery.Get("headerType")
 	}
-	//获取混淆
 	if urlQuery.Get("host") != "" {
 		node.Host = urlQuery.Get("host")
-	} else {
-		return nil
 	}
-
 	if urlQuery.Get("path") != "" {
 		node.Path = urlQuery.Get("path")
 	}
-
+	if urlQuery.Get("security") != "" {
+		node.Security = urlQuery.Get("security")
+	}
 	if urlQuery.Get("sni") != "" {
 		node.Sni = urlQuery.Get("sni")
 	}
+	if urlQuery.Get("fp") != "" {
+		node.Fingerprint = urlQuery.Get("fp")
+	}
 	if urlQuery.Get("alpn") != "" {
 		node.Alpn = urlQuery.Get("alpn")
+	}
+	if urlQuery.Get("pbk") != "" {
+		node.PublicKey = urlQuery.Get("pbk")
 	}
 	if urlQuery.Get("allowInsecure") != "" {
 		node.AllowInsecure = true
@@ -242,7 +241,6 @@ func ParseTrojanLink(link string) *model.NodeShared {
 	if urlQuery.Get("allowInsecure") != "" {
 		node.AllowInsecure = true
 	}
-
 	return node
 }
 
@@ -264,6 +262,40 @@ func ParseSSLink(link string) *model.NodeShared {
 	node.UUID = arr[1] //Passwd存到uuid字段
 
 	return &node
+}
+
+func ParseHy2Link(link string) *model.NodeShared {
+	u, err := url.Parse(link)
+	if err != nil {
+		return nil
+	}
+	if u.User == nil || u.Scheme != "hy2" {
+		return nil
+	}
+	node := new(model.NodeShared)
+	node.Enabled = true
+	node.NodeType = "hysteria"
+	node.IsSharedNode = true
+	//remarks
+	node.Remarks = u.Fragment
+	if node.Remarks == "" {
+		node.Remarks = u.Host
+	}
+	//address
+	node.Address = u.Hostname()
+	//port
+	node.Port, err = strconv.ParseInt(u.Port(), 10, 64)
+	if err != nil {
+		return nil
+	}
+	//解析参数
+	urlQuery := u.Query()
+	//uuid
+	node.UUID = u.User.Username()
+	if urlQuery.Get("sni") != "" {
+		node.Sni = urlQuery.Get("sni")
+	}
+	return node
 }
 
 func ParseSubUrl(urlStr string) *[]model.NodeShared {
@@ -300,7 +332,7 @@ func ParseSubUrl(urlStr string) *[]model.NodeShared {
 	return &Nodes
 }
 
-// 解析一条节点,vmess vless trojan
+// 解析一条节点,vmess vless trojan hysteria
 func ParseOne(link string) *model.NodeShared {
 	//fmt.Println("解析一条链接", link)
 	u, err := url.Parse(link)
@@ -322,6 +354,10 @@ func ParseOne(link string) *model.NodeShared {
 		}
 	case "ss":
 		if obj := ParseSSLink(link); obj != nil {
+			return obj
+		}
+	case "hy2":
+		if obj := ParseHy2Link(link); obj != nil {
 			return obj
 		}
 	}

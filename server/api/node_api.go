@@ -1,12 +1,12 @@
 package api
 
 import (
-	"AirGo/global"
-	"AirGo/model"
-	"AirGo/service"
-	"AirGo/utils/encrypt_plugin"
-	"AirGo/utils/response"
 	"github.com/gin-gonic/gin"
+	"github.com/ppoonk/AirGo/global"
+	"github.com/ppoonk/AirGo/model"
+	"github.com/ppoonk/AirGo/service"
+	"github.com/ppoonk/AirGo/utils/encrypt_plugin"
+	"github.com/ppoonk/AirGo/utils/response"
 )
 
 // 获取全部节点

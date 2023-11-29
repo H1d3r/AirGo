@@ -1,12 +1,12 @@
 package service
 
 import (
-	"AirGo/global"
-	"AirGo/model"
-	"AirGo/utils/encrypt_plugin"
-	"AirGo/utils/net_plugin"
 	"encoding/json"
 	"fmt"
+	"github.com/ppoonk/AirGo/global"
+	"github.com/ppoonk/AirGo/model"
+	"github.com/ppoonk/AirGo/utils/encrypt_plugin"
+	"github.com/ppoonk/AirGo/utils/net_plugin"
 	"github.com/smartwalle/alipay/v3"
 	"net/http"
 	"net/url"
@@ -171,6 +171,17 @@ func PollAliPay(order *model.Orders, client *alipay.Client) {
 			})
 			global.GoroutinePool.Submit(func() {
 				RemainHandle(order.UserID, order.RemainAmount) //处理用户余额
+			})
+			global.GoroutinePool.Submit(func() { //通知
+				if global.Server.Notice.TGAdmin == "" {
+					return
+				}
+				tgIDs := strings.Fields(global.Server.Notice.TGAdmin)
+				for _, v := range tgIDs {
+					chatID, _ := strconv.ParseInt(v, 10, 64)
+					TGBotSendMessage(chatID, fmt.Sprintf("用户：%s\n购买订阅：%s\n销售价格：%s\n订单金额：%s\n支付方式：%s", order.UserName, order.Subject, order.Price, order.TotalAmount, order.PayType))
+				}
+
 			})
 			t.Stop()
 			return

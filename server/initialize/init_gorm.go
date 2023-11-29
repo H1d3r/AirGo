@@ -1,10 +1,10 @@
 package initialize
 
 import (
-	"AirGo/global"
-	"AirGo/model"
-	utils "AirGo/utils/encrypt_plugin"
 	"errors"
+	"github.com/ppoonk/AirGo/global"
+	"github.com/ppoonk/AirGo/model"
+	utils "github.com/ppoonk/AirGo/utils/encrypt_plugin"
 	"gorm.io/driver/sqlite"
 	"time"
 
@@ -153,8 +153,8 @@ func InsertInto() {
 		InsertIntoUserAndRole,
 		InsertIntoRoleAndMenu,
 		InsertIntoGoods,
-		InsertIntoNode,
-		InsertIntoGoodsAndNodes,
+		//InsertIntoNode,
+		//InsertIntoGoodsAndNodes,
 		InsertIntoCasbinRule,
 		InsertIntoTheme,
 		InsertIntoServer,
@@ -211,28 +211,29 @@ func InsertIntoUser() error {
 }
 func InsertIntoDynamicRoute() error {
 	DynamicRouteData := []model.DynamicRoute{
-		{ID: 1, ParentID: 0, Path: "/admin", Name: "admin", Component: "/layout/routerView/parent.vue", Meta: model.Meta{Title: "超级管理员", Icon: "iconfont icon-shouye_dongtaihui"}},   //id==1
-		{ID: 2, ParentID: 1, Path: "/admin/menu", Name: "adminMenu", Component: "/admin/menu/index.vue", Meta: model.Meta{Title: "菜单", Icon: "iconfont icon-caidan"}},                //id==2
-		{ID: 3, ParentID: 1, Path: "/admin/role", Name: "adminRole", Component: "/admin/role/index.vue", Meta: model.Meta{Title: "角色", Icon: "iconfont icon-icon-"}},                 //id==3
-		{ID: 4, ParentID: 1, Path: "/admin/user", Name: "adminUser", Component: "/admin/user/index.vue", Meta: model.Meta{Title: "用户", Icon: "iconfont icon-gerenzhongxin"}},         //id==4
-		{ID: 5, ParentID: 1, Path: "/admin/order", Name: "adminOrder", Component: "/admin/order/index.vue", Meta: model.Meta{Title: "订单", Icon: "iconfont icon--chaifenhang"}},       //id==5
-		{ID: 6, ParentID: 1, Path: "/admin/node", Name: "adminNode", Component: "/admin/node/index.vue", Meta: model.Meta{Title: "节点", Icon: "iconfont icon-shuxingtu"}},             //id==6
-		{ID: 7, ParentID: 1, Path: "/admin/shop", Name: "adminShop", Component: "/admin/shop/index.vue", Meta: model.Meta{Title: "商品", Icon: "iconfont icon-zhongduancanshuchaxun"}}, //id==7
-		{ID: 8, ParentID: 1, Path: "/admin/system", Name: "system", Component: "/admin/system/index.vue", Meta: model.Meta{Title: "系统", Icon: "iconfont icon-xitongshezhi"}},         //id==8
-		{ID: 9, ParentID: 1, Path: "/admin/article", Name: "article", Component: "/admin/article/index.vue", Meta: model.Meta{Title: "文章", Icon: "iconfont icon-huanjingxingqiu"}},   //id==9
-		{ID: 10, ParentID: 1, Path: "/admin/coupon", Name: "coupon", Component: "/admin/coupon/index.vue", Meta: model.Meta{Title: "折扣码", Icon: "ele-ShoppingBag"}},                  //id==10
-		{ID: 11, ParentID: 1, Path: "/admin/access", Name: "access", Component: "/admin/access/index.vue", Meta: model.Meta{Title: "访问控制", Icon: "ele-ChromeFilled"}},                //id==11
+		{ID: 1, ParentID: 0, Path: "/admin", Name: "admin", Component: "/layout/routerView/parent.vue", Meta: model.Meta{Title: "超级管理员", Icon: "iconfont icon-shouye_dongtaihui"}},
+		{ID: 2, ParentID: 1, Path: "/admin/menu", Name: "adminMenu", Component: "/admin/menu/index.vue", Meta: model.Meta{Title: "菜单", Icon: "iconfont icon-caidan"}},
+		{ID: 3, ParentID: 1, Path: "/admin/role", Name: "adminRole", Component: "/admin/role/index.vue", Meta: model.Meta{Title: "角色", Icon: "iconfont icon-icon-"}},
+		{ID: 4, ParentID: 1, Path: "/admin/user", Name: "adminUser", Component: "/admin/user/index.vue", Meta: model.Meta{Title: "用户", Icon: "iconfont icon-gerenzhongxin"}},
+		{ID: 5, ParentID: 1, Path: "/admin/order", Name: "adminOrder", Component: "/admin/order/index.vue", Meta: model.Meta{Title: "订单", Icon: "iconfont icon--chaifenhang"}},
+		{ID: 6, ParentID: 1, Path: "/admin/node", Name: "adminNode", Component: "/admin/node/index.vue", Meta: model.Meta{Title: "节点", Icon: "iconfont icon-shuxingtu"}},
+		{ID: 7, ParentID: 1, Path: "/admin/shop", Name: "adminShop", Component: "/admin/shop/index.vue", Meta: model.Meta{Title: "商品", Icon: "iconfont icon-zhongduancanshuchaxun"}},
+		{ID: 8, ParentID: 1, Path: "/admin/system", Name: "system", Component: "/admin/system/index.vue", Meta: model.Meta{Title: "系统", Icon: "iconfont icon-xitongshezhi"}},
+		{ID: 9, ParentID: 1, Path: "/admin/article", Name: "article", Component: "/admin/article/index.vue", Meta: model.Meta{Title: "文章", Icon: "iconfont icon-huanjingxingqiu"}},
+		{ID: 10, ParentID: 1, Path: "/admin/coupon", Name: "coupon", Component: "/admin/coupon/index.vue", Meta: model.Meta{Title: "折扣码", Icon: "ele-ShoppingBag"}},
+		{ID: 11, ParentID: 1, Path: "/admin/access", Name: "access", Component: "/admin/access/index.vue", Meta: model.Meta{Title: "访问控制", Icon: "ele-ChromeFilled"}},
+		{ID: 12, ParentID: 1, Path: "/admin/migration", Name: "migration", Component: "/admin/migration/index.vue", Meta: model.Meta{Title: "数据迁移", Icon: "fa fa-database"}},
 
-		{ID: 12, ParentID: 0, Path: "/home", Name: "home", Component: "/home/index.vue", Meta: model.Meta{Title: "首页", Icon: "iconfont icon-shouye"}},                           //12
-		{ID: 13, ParentID: 0, Path: "/shop", Name: "shop", Component: "/shop/index.vue", Meta: model.Meta{Title: "商店", Icon: "iconfont icon-zidingyibuju"}},                     //13
-		{ID: 14, ParentID: 0, Path: "/myOrder", Name: "myOrder", Component: "/myOrder/index.vue", Meta: model.Meta{Title: "我的订单", Icon: "iconfont icon--chaifenhang"}},          //14
-		{ID: 15, ParentID: 0, Path: "/personal", Name: "personal", Component: "/personal/index.vue", Meta: model.Meta{Title: "个人信息", Icon: "iconfont icon-gerenzhongxin"}},      //15
-		{ID: 16, ParentID: 0, Path: "/serverStatus", Name: "serverStatus", Component: "/serverStatus/index.vue", Meta: model.Meta{Title: "节点状态", Icon: "iconfont icon-putong"}}, //16
-		{ID: 17, ParentID: 0, Path: "/gallery", Name: "gallery", Component: "/gallery/index.vue", Meta: model.Meta{Title: "图库", Icon: "iconfont icon-step"}},                    //17
-		{ID: 18, ParentID: 0, Path: "/income", Name: "income", Component: "/income/index.vue", Meta: model.Meta{Title: "营收概览", Icon: "iconfont icon-xingqiu"}},                  //18
-		{ID: 19, ParentID: 0, Path: "/isp", Name: "isp", Component: "/isp/index.vue", Meta: model.Meta{Title: "套餐监控", Icon: "iconfont icon-tongzhi1"}},                          //19
-		{ID: 20, ParentID: 0, Path: "/article/notice", Name: "notice", Component: "/article/index_notice.vue", Meta: model.Meta{Title: "公告", Icon: "ele-ChatLineSquare"}},       //20
-		{ID: 21, ParentID: 0, Path: "/article/knowledge", Name: "knowledge", Component: "/article/index_knowledge.vue", Meta: model.Meta{Title: "知识库", Icon: "fa fa-book"}},     //21
+		{ID: 13, ParentID: 0, Path: "/home", Name: "home", Component: "/home/index.vue", Meta: model.Meta{Title: "首页", Icon: "iconfont icon-shouye"}},
+		{ID: 14, ParentID: 0, Path: "/shop", Name: "shop", Component: "/shop/index.vue", Meta: model.Meta{Title: "商店", Icon: "iconfont icon-zidingyibuju"}},
+		{ID: 15, ParentID: 0, Path: "/myOrder", Name: "myOrder", Component: "/myOrder/index.vue", Meta: model.Meta{Title: "我的订单", Icon: "iconfont icon--chaifenhang"}},
+		{ID: 16, ParentID: 0, Path: "/personal", Name: "personal", Component: "/personal/index.vue", Meta: model.Meta{Title: "个人信息", Icon: "iconfont icon-gerenzhongxin"}},
+		{ID: 17, ParentID: 0, Path: "/serverStatus", Name: "serverStatus", Component: "/serverStatus/index.vue", Meta: model.Meta{Title: "节点状态", Icon: "iconfont icon-putong"}},
+		{ID: 18, ParentID: 0, Path: "/gallery", Name: "gallery", Component: "/gallery/index.vue", Meta: model.Meta{Title: "图库", Icon: "iconfont icon-step"}},
+		{ID: 19, ParentID: 0, Path: "/income", Name: "income", Component: "/income/index.vue", Meta: model.Meta{Title: "营收概览", Icon: "iconfont icon-xingqiu"}},
+		{ID: 20, ParentID: 0, Path: "/isp", Name: "isp", Component: "/isp/index.vue", Meta: model.Meta{Title: "套餐监控", Icon: "iconfont icon-tongzhi1"}},
+		{ID: 21, ParentID: 0, Path: "/article/notice", Name: "notice", Component: "/article/index_notice.vue", Meta: model.Meta{Title: "公告", Icon: "ele-ChatLineSquare"}},
+		{ID: 22, ParentID: 0, Path: "/article/knowledge", Name: "knowledge", Component: "/article/index_knowledge.vue", Meta: model.Meta{Title: "知识库", Icon: "fa fa-book"}},
 	}
 	if err := global.DB.Create(&DynamicRouteData).Error; err != nil {
 		return errors.New("sys_dynamic-router_data表数据初始化失败!")
@@ -273,26 +274,27 @@ func InsertIntoRoleAndMenu() error {
 		{RoleID: 1, DynamicRouteID: 9},  //文章设置
 		{RoleID: 1, DynamicRouteID: 10}, //折扣码管理
 		{RoleID: 1, DynamicRouteID: 11}, //访问控制
+		{RoleID: 1, DynamicRouteID: 12}, //数据迁移
 
-		{RoleID: 1, DynamicRouteID: 12}, //首页
-		{RoleID: 1, DynamicRouteID: 13}, //商店
-		{RoleID: 1, DynamicRouteID: 14}, //我的订单
-		{RoleID: 1, DynamicRouteID: 15}, //个人信息
-		{RoleID: 1, DynamicRouteID: 16}, //节点状态
-		{RoleID: 1, DynamicRouteID: 18}, //营收概览
-		{RoleID: 1, DynamicRouteID: 19}, //套餐监控
-		{RoleID: 1, DynamicRouteID: 20}, //公告
-		{RoleID: 1, DynamicRouteID: 21}, //知识库
+		{RoleID: 1, DynamicRouteID: 13},
+		{RoleID: 1, DynamicRouteID: 14},
+		{RoleID: 1, DynamicRouteID: 15},
+		{RoleID: 1, DynamicRouteID: 16},
+		{RoleID: 1, DynamicRouteID: 17},
+		{RoleID: 1, DynamicRouteID: 18},
+		{RoleID: 1, DynamicRouteID: 19},
+		{RoleID: 1, DynamicRouteID: 20},
+		{RoleID: 1, DynamicRouteID: 21},
+		{RoleID: 1, DynamicRouteID: 22},
 
 		//普通用户的权限
-		{RoleID: 2, DynamicRouteID: 12}, //首页
-		{RoleID: 2, DynamicRouteID: 13}, //商店
-		{RoleID: 2, DynamicRouteID: 14}, //我的订单
-		{RoleID: 2, DynamicRouteID: 15}, //个人信息
-		{RoleID: 2, DynamicRouteID: 16}, //节点状态
-		{RoleID: 2, DynamicRouteID: 19}, //套餐监控
-		{RoleID: 2, DynamicRouteID: 20}, //公告
-		{RoleID: 2, DynamicRouteID: 21}, //知识库
+		{RoleID: 2, DynamicRouteID: 13}, //首页
+		{RoleID: 2, DynamicRouteID: 14}, //商店
+		{RoleID: 2, DynamicRouteID: 15}, //我的订单
+		{RoleID: 2, DynamicRouteID: 16}, //个人信息
+		{RoleID: 2, DynamicRouteID: 17}, //节点状态
+		{RoleID: 2, DynamicRouteID: 21}, //公告
+		{RoleID: 2, DynamicRouteID: 22}, //知识库
 	}
 	if err := global.DB.Create(&roleAndMenuData).Error; err != nil {
 		return errors.New("role_and_menu表数据初始化失败!")
@@ -302,8 +304,7 @@ func InsertIntoRoleAndMenu() error {
 }
 func InsertIntoGoods() error {
 	goodsData := []model.Goods{
-		{ID: 1, Subject: "10G|30天", TotalBandwidth: 10, ExpirationDate: 30, TotalAmount: "0.01", Des: text2, TrafficResetMethod: "NotStack"},
-		{ID: 2, Subject: "20G|180天", TotalBandwidth: 20, ExpirationDate: 180, TotalAmount: "0", Des: text2, TrafficResetMethod: "NotStack"},
+		{ID: 1, Subject: "10G|30天", TotalBandwidth: 10, ExpirationDate: 30, TotalAmount: "0.00", Des: text2, TrafficResetMethod: "NotStack"},
 	}
 	if err := global.DB.Create(&goodsData).Error; err != nil {
 		return errors.New("goods表数据初始化失败!")
@@ -450,36 +451,39 @@ func InsertIntoCasbinRule() error {
 		{ID: 78, Ptype: "p", V0: "1", V1: apiPre + "/access/deleteRoutes", V2: "POST"},
 		{ID: 79, Ptype: "p", V0: "1", V1: apiPre + "/access/getRoutesList", V2: "POST"},
 
+		//migration
+		{ID: 80, Ptype: "p", V0: "1", V1: apiPre + "/migration/fromOther", V2: "POST"},
+
 		//普通用户权限
-		{ID: 80, Ptype: "p", V0: "2", V1: apiPre + "/user/changeUserPassword", V2: "POST"},
-		{ID: 81, Ptype: "p", V0: "2", V1: apiPre + "/user/getUserInfo", V2: "GET"},
-		{ID: 82, Ptype: "p", V0: "2", V1: apiPre + "/user/resetSub", V2: "GET"},
-		{ID: 83, Ptype: "p", V0: "2", V1: apiPre + "/user/changeSubHost", V2: "POST"},
-		{ID: 84, Ptype: "p", V0: "2", V1: apiPre + "/user/clockin", V2: "GET"},
+		{ID: 81, Ptype: "p", V0: "2", V1: apiPre + "/user/changeUserPassword", V2: "POST"},
+		{ID: 82, Ptype: "p", V0: "2", V1: apiPre + "/user/getUserInfo", V2: "GET"},
+		{ID: 83, Ptype: "p", V0: "2", V1: apiPre + "/user/resetSub", V2: "GET"},
+		{ID: 84, Ptype: "p", V0: "2", V1: apiPre + "/user/changeSubHost", V2: "POST"},
+		{ID: 85, Ptype: "p", V0: "2", V1: apiPre + "/user/clockin", V2: "GET"},
 
-		{ID: 85, Ptype: "p", V0: "2", V1: apiPre + "/menu/getRouteList", V2: "GET"},
-		{ID: 86, Ptype: "p", V0: "2", V1: apiPre + "/menu/getRouteTree", V2: "GET"},
+		{ID: 86, Ptype: "p", V0: "2", V1: apiPre + "/menu/getRouteList", V2: "GET"},
+		{ID: 87, Ptype: "p", V0: "2", V1: apiPre + "/menu/getRouteTree", V2: "GET"},
 
-		{ID: 87, Ptype: "p", V0: "2", V1: apiPre + "/order/getOrderInfo", V2: "POST"},
-		{ID: 88, Ptype: "p", V0: "2", V1: apiPre + "/order/getOrderByUserID", V2: "POST"},
+		{ID: 88, Ptype: "p", V0: "2", V1: apiPre + "/order/getOrderInfo", V2: "POST"},
+		{ID: 89, Ptype: "p", V0: "2", V1: apiPre + "/order/getOrderByUserID", V2: "POST"},
 
-		{ID: 89, Ptype: "p", V0: "2", V1: apiPre + "/shop/preCreatePay", V2: "POST"},
-		{ID: 90, Ptype: "p", V0: "2", V1: apiPre + "/shop/purchase", V2: "POST"},
-		{ID: 91, Ptype: "p", V0: "2", V1: apiPre + "/shop/getAllEnabledGoods", V2: "GET"},
-		{ID: 92, Ptype: "p", V0: "2", V1: apiPre + "/shop/findGoods", V2: "POST"},
+		{ID: 90, Ptype: "p", V0: "2", V1: apiPre + "/shop/preCreatePay", V2: "POST"},
+		{ID: 91, Ptype: "p", V0: "2", V1: apiPre + "/shop/purchase", V2: "POST"},
+		{ID: 92, Ptype: "p", V0: "2", V1: apiPre + "/shop/getAllEnabledGoods", V2: "GET"},
+		{ID: 93, Ptype: "p", V0: "2", V1: apiPre + "/shop/findGoods", V2: "POST"},
 
-		{ID: 93, Ptype: "p", V0: "2", V1: apiPre + "/websocket/msg", V2: "GET"},
+		{ID: 94, Ptype: "p", V0: "2", V1: apiPre + "/websocket/msg", V2: "GET"},
 
-		{ID: 94, Ptype: "p", V0: "2", V1: apiPre + "/upload/newPictureUrl", V2: "POST"},
-		{ID: 95, Ptype: "p", V0: "2", V1: apiPre + "/upload/getPictureList", V2: "POST"},
+		{ID: 95, Ptype: "p", V0: "2", V1: apiPre + "/upload/newPictureUrl", V2: "POST"},
+		{ID: 96, Ptype: "p", V0: "2", V1: apiPre + "/upload/getPictureList", V2: "POST"},
 
-		{ID: 96, Ptype: "p", V0: "2", V1: apiPre + "/article/getArticle", V2: "POST"},
+		{ID: 97, Ptype: "p", V0: "2", V1: apiPre + "/article/getArticle", V2: "POST"},
 
-		{ID: 97, Ptype: "p", V0: "2", V1: apiPre + "/isp/sendCode", V2: "POST"},
-		{ID: 98, Ptype: "p", V0: "2", V1: apiPre + "/isp/ispLogin", V2: "POST"},
-		{ID: 99, Ptype: "p", V0: "2", V1: apiPre + "/isp/getMonitorByUserID", V2: "POST"},
+		{ID: 98, Ptype: "p", V0: "2", V1: apiPre + "/isp/sendCode", V2: "POST"},
+		{ID: 99, Ptype: "p", V0: "2", V1: apiPre + "/isp/ispLogin", V2: "POST"},
+		{ID: 100, Ptype: "p", V0: "2", V1: apiPre + "/isp/getMonitorByUserID", V2: "POST"},
 
-		{ID: 100, Ptype: "p", V0: "2", V1: apiPre + "/pay/getEnabledPayList", V2: "GET"},
+		{ID: 101, Ptype: "p", V0: "2", V1: apiPre + "/pay/getEnabledPayList", V2: "GET"},
 	}
 	if err := global.DB.Create(&casbinRuleData).Error; err != nil {
 		return errors.New("casbin_rule表数据初始化失败!")

@@ -1,9 +1,10 @@
 <template>
   <div>
     <el-row :gutter="10" class="home-card-two mb15">
-      <el-col :xs="24" :sm="12" :md="12" :lg="6" :xl="6">
+<!--      套餐详情-->
+      <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
         <div class="home-card-item">
-          <el-card class="box-card">
+          <el-card class="box-card" style="height: 300px">
             <template #header>
               <div class="card-header">
                 <el-text class="card-header-left">套餐详情</el-text>
@@ -28,56 +29,101 @@
           </el-card>
         </div>
       </el-col>
-      <el-col :xs="24" :sm="12" :md="12" :lg="6" :xl="6">
+      <!--      订阅连接-->
+      <el-col :xs="24" :sm="24" :md="12" :lg="12" :xl="12">
         <div class="home-card-item">
-          <el-card class="box-card" style="width: 100%;flex: 1;">
-            <template #header>
-              <div class="card-header">
-                <el-text class="card-header-left">当前混淆:</el-text>
-                <span>{{ userInfos.subscribe_info.host }}</span>
-              </div>
-            </template>
-            <div>
-              <el-input v-model="state.host.host" placeholder="输入混淆">
-                <template #append>
-                  <el-button size="large" @click="onChangeHost" :icon="Select">确认修改</el-button>
-                </template>
-              </el-input>
-            </div>
-
-          </el-card>
-        </div>
-      </el-col>
-      <el-col :xs="24" :sm="14" :md="14" :lg="16" :xl="16">
-        <div class="home-card-item">
-          <el-card class="box-card">
+          <el-card class="box-card" style="height: 300px">
             <template #header>
               <div class="card-header">
                 <el-text class="card-header-left">订阅地址</el-text>
                 <el-button type="primary" size="large" text plain class="button" @click="onResetSub">重置订阅链接</el-button>
               </div>
             </template>
-            <div>
-              <el-button style="margin-top: 10px;margin-bottom: 10px" @click="v2rayNGSub('v2ray')" type="primary" plain>
-                复制通用订阅订阅
-              </el-button>
-              <el-button style="margin-top: 10px;margin-bottom: 10px" @click="v2rayNGSub('clash')" type="success" plain>
-                复制Clash Meta订阅
-              </el-button>
+            <div style="text-align: center">
+              <div>
+                <el-button size="large" color="blue" style="margin-top: 10px;margin-bottom: 10px;width: 100%" @click="Sub('')">
+                  复制通用订阅
+                </el-button>
+              </div>
+              <div>
+                <el-button size="large" color="deeppink" style="margin-top: 10px;margin-bottom: 10px;width: 100%" @click="QRSub()">
+                  二维码订阅
+                </el-button>
+              </div>
+              <div>
+                <el-button size="large" color="brown" style="margin-top: 10px;margin-bottom: 10px;width: 100%" @click="state.isShowSubDialog=true">
+                  手动选择订阅
+                </el-button>
+              </div>
             </div>
           </el-card>
         </div>
       </el-col>
-      <el-col :xs="24" :sm="14" :md="14" :lg="16" :xl="16">
+
+<!--      自定义内容-->
+      <el-col :xs="24" :sm="24" :md="24" :lg="24" :xl="24">
         <div class="home-card-item" >
-          <div class="box-card">
-            <v-md-preview :text="articleStoreData.articleID1.value.content"></v-md-preview>
-          </div>
+          <el-card class="box-card">
+            <div class="box-card">
+              <v-md-preview :text="articleStoreData.articleID1.value.content"></v-md-preview>
+            </div>
+          </el-card>
         </div>
       </el-col>
     </el-row>
     <el-dialog v-model="state.isShowDialog" :title="state.title" width="80%" destroy-on-close center>
       <v-md-preview :text="articleStoreData.articleID2.value.content"></v-md-preview>
+    </el-dialog>
+    <el-dialog v-model="state.isShowSubDialog">
+      <div>
+        <el-button size="large" color="blue" style="margin-top: 10px;margin-bottom: 10px;width: 100%" @click="Sub('NekoBox')">
+          NekoBox 订阅
+        </el-button>
+      </div>
+      <div>
+        <el-button size="large" color="blue" style="margin-top: 10px;margin-bottom: 10px;width: 100%" @click="Sub('v2rayNG')">
+          v2rayNG 订阅
+        </el-button>
+      </div>
+      <div>
+        <el-button size="large" color="blue" style="margin-top: 10px;margin-bottom: 10px;width: 100%" @click="Sub('v2rayN')">
+          v2rayN 订阅
+        </el-button>
+      </div>
+      <div>
+        <el-button size="large" color="blue" style="margin-top: 10px;margin-bottom: 10px;width: 100%" @click="Sub('Clash')">
+          Clash 订阅
+        </el-button>
+      </div>
+      <div>
+        <el-button size="large" color="blue" style="margin-top: 10px;margin-bottom: 10px;width: 100%" @click="Sub('Shadowrocket')">
+          Shadowrocket 订阅
+        </el-button>
+      </div>
+      <div>
+        <el-button size="large" color="blue" style="margin-top: 10px;margin-bottom: 10px;width: 100%" @click="Sub('Surge')">
+          Surge 订阅
+        </el-button>
+      </div>
+      <div>
+        <el-button size="large" color="blue" style="margin-top: 10px;margin-bottom: 10px;width: 100%" @click="Sub('Quantumult')">
+          Quantumult 订阅
+        </el-button>
+      </div>
+      <div>
+        <el-button size="large" color="blue" style="margin-top: 10px;margin-bottom: 10px;width: 100%" @click="Sub('V2rayU')">
+          V2rayU 订阅
+        </el-button>
+      </div>
+
+
+
+    </el-dialog>
+    <el-dialog v-model="state.isShowQRSubDialog" width="350px">
+      <!-- 二维码弹窗 -->
+      <div >
+        <div id="qrcode" ref="qrcodeRef"></div>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -89,11 +135,12 @@ import {request} from "/@/utils/request";
 import {useApiStore} from "/@/stores/apiStore";
 import {storeToRefs} from "pinia";
 import {useUserStore} from "/@/stores/userStore";
-import {onMounted, reactive} from 'vue';
+import {onMounted, reactive, ref} from 'vue';
 import {ElMessage} from 'element-plus';
 import {Select} from '@element-plus/icons-vue'
 import commonFunction from '/@/utils/commonFunction';
 import {useArticleStore} from "/@/stores/articleStore";
+import QRCode from "qrcodejs2-fixes";
 
 const apiStore = useApiStore()
 const apiStoreData = storeToRefs(apiStore)
@@ -103,12 +150,17 @@ const {copyText} = commonFunction();
 
 const articleStore =useArticleStore()
 const articleStoreData = storeToRefs(articleStore)
+const qrcodeRef = ref();
+
 //定义参数
 const state = reactive({
   host: {
     host: '',
   },
   isShowDialog:false,
+  isShowSubDialog:false,
+  isShowQRSubDialog:false,
+  QRcode: null,
 })
 
 //获取首页自定义内容
@@ -121,6 +173,9 @@ const getArticleID1=()=>{
 //获取首页弹窗内容
 const getArticleID2=()=>{
   articleStore.getArticleList({search:"id=2 AND status=true",page_num:1,page_size:1}).then((res)=>{
+    if ((res.data.article_list as Article[]).length === 0){
+      return
+    }
     //保存
     articleStoreData.articleID2.value=res.data.article_list[0]
     //显示弹窗
@@ -143,20 +198,63 @@ const onResetSub = () => {
     userStore.getUserInfo()
   })
 }
-const v2rayNGSub = (type: string) => {
+//复制订阅
+const Sub = (type: string) => {
   switch (type) {
-    case "v2ray":
-      //通用订阅；v2rayNG订阅
-      copyText(userStore.subUrl + "&type=v2ray")
+    case "NekoBox":
+      copyText(userStore.subUrl + "&type=NekoBox")
       break
-    case "clash":
-      //Clash订阅
-      copyText(userStore.subUrl + "&type=clash")
+    case "v2rayNG":
+      copyText(userStore.subUrl + "&type=v2rayNG")
       break
+    case "v2rayN":
+      copyText(userStore.subUrl + "&type=v2rayN")
+      break
+    case "Clash":
+      copyText(userStore.subUrl + "&type=Clash")
+      break
+
+    case "Shadowrocket":
+      copyText(userStore.subUrl + "&type=Shadowrocket")
+      break
+
+    case "Surge":
+      copyText(userStore.subUrl + "&type=Surge")
+      break
+
+    case "Quantumult":
+      copyText(userStore.subUrl + "&type=Quantumult")
+      break
+    case "V2rayU":
+      copyText(userStore.subUrl + "&type=V2rayU")
+      break
+
     default:
-      copyText(userStore.subUrl + "&type=v2ray")
+      copyText(userStore.subUrl)
       break
   }
+}
+//二维码订阅
+const QRSub=()=>{
+  state.isShowQRSubDialog=true
+  setTimeout(()=>{
+    onInitQrcode()
+  },200)
+
+
+}
+//二维码
+const onInitQrcode = () => {
+  //清除上一次二维码
+  const codeHtml = document.getElementById("qrcode");
+  codeHtml.innerHTML = "";
+  state.QRcode = new QRCode(qrcodeRef.value, {
+    text: userStore.subUrl,
+    width: 300,
+    height: 300,
+    colorDark: '#0a55f8',
+    colorLight: 'rgb(255,255,255)',
+  });
 }
 // 页面加载时
 onMounted(() => {

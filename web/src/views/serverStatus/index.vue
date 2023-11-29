@@ -26,13 +26,19 @@
                 <el-icon color="#409EFC">
                   <Top/>
                 </el-icon>
-                <span>{{ v.u }}Mbps</span>
+                <span v-if="v.u < 1024">{{ v.u.toFixed(2) }}B/s</span>
+                <span v-else-if="1024 < v.u < 1048576">{{ (v.u/1024).toFixed(2) }}kB/s</span>
+                <span v-else-if="1048576 < v.u < 1073741824">{{ (v.u/1024/1024).toFixed(2) }}MB/s</span>
+                <span v-else>{{ v.u }}B/s</span>
               </el-col>
               <el-col :xs="12" :sm="12" :md="4" :lg="4" :xl="4" style="margin: auto">
                 <el-icon color="#409EFC">
                   <Bottom/>
                 </el-icon>
-                <span>{{ v.d }}Mbps</span>
+                <span v-if="v.d < 1024">{{ v.d.toFixed(2) }}B/s</span>
+                <span v-else-if="1024 < v.d < 1048576">{{ (v.d/1024).toFixed(2) }}kB/s</span>
+                <span v-else-if="1048576 < v.d < 1073741824">{{ (v.d/1024/1024).toFixed(2) }}MB/s</span>
+                <span v-else>{{ v.d }}B/s</span>
               </el-col>
             </el-row>
 
@@ -54,7 +60,7 @@
                 </el-progress>
               </el-col>
               <el-col :xs="24" :sm="24" :md="8" :lg="8" :xl="8" style="margin-top: 5px;margin-bottom: 5px">
-                <el-progress :text-inside="true" :stroke-width="20" :percentage="(100-v.disk.toFixed(0))" striped striped-flow :color="customColors">
+                <el-progress :text-inside="true" :stroke-width="20" :percentage="v.disk.toFixed(0)" striped striped-flow :color="customColors">
                   <template #default="{ percentage }">
                     <span class="percentage-label">disk：</span>
                     <span class="percentage-value">{{ percentage }}%</span>

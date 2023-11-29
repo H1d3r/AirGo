@@ -1,9 +1,7 @@
 package other_plugin
 
 import (
-	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"reflect"
 	"sort"
 	"strings"
@@ -152,56 +150,52 @@ func GetStructFieldMap(data interface{}) ([]string, map[string]interface{}, map[
 
 }
 
-func SimpleCopyProperties(dst, src any) (any, error) {
-	dstType, dstValue := reflect.TypeOf(dst), reflect.ValueOf(dst)
-	srcType, srcValue := reflect.TypeOf(src), reflect.ValueOf(src)
-
-	// dst必须结构体指针类型
-	if dstType.Kind() != reflect.Ptr || dstType.Elem().Kind() != reflect.Struct {
-		return nil, errors.New("dst type should be a struct pointer")
-	}
-	// src必须为结构体或者结构体指针，.Elem()类似于*ptr的操作返回指针指向的地址反射类型
-	if srcType.Kind() == reflect.Ptr {
-		srcType, srcValue = srcType.Elem(), srcValue.Elem()
-	}
-	if srcType.Kind() != reflect.Struct {
-		return nil, errors.New("src type should be a struct or a struct pointer")
-	}
-
-	// 取具体内容
-	dstType, dstValue = dstType.Elem(), dstValue.Elem()
-
-	// 属性个数
-	propertyNums := dstType.NumField()
-
-	for i := 0; i < propertyNums; i++ {
-		// 属性
-		property := dstType.Field(i)
-		// 待填充属性值
-		propertyValue := srcValue.FieldByName(property.Name)
-
-		// 无效，说明src没有这个属性 || 属性同名但类型不同
-		if !propertyValue.IsValid() || property.Type != propertyValue.Type() {
+// 数组去重
+func ArrayDeduplication(slice []int64) []int64 {
+	tempMap := make(map[int64]struct{}, len(slice))
+	j := 0
+	for _, v := range slice {
+		_, ok := tempMap[v]
+		if ok {
 			continue
 		}
-
-		if dstValue.Field(i).CanSet() {
-			dstValue.Field(i).Set(propertyValue)
-		}
+		tempMap[v] = struct{}{}
+		slice[j] = v
+		j++
 	}
-	return dstValue, nil
+	return slice[:j]
 }
 
-// gin.Context中获取user id
-func GetUserIDFromGinContext(ctx *gin.Context) (int64, bool) {
-	userID, ok := ctx.Get("uID")
-	return userID.(int64), ok
+// 判断字符串是否在一个数组中
+func In(target string, str_array []string) bool {
+	sort.Strings(str_array)
+	index := sort.SearchStrings(str_array, target)
+	if index < len(str_array) && str_array[index] == target {
+		return true
+	}
+	return false
 }
 
-// gin.Context中获取user id
-func GetUserNameFromGinContext(ctx *gin.Context) (string, bool) {
-	userName, ok := ctx.Get("uName")
-	return userName.(string), ok
+// 数组拆分
+func SplitArray[T any](arr []T, num int64) [][]T {
+
+	max := int64(len(arr))
+	if max < num {
+		return nil
+	}
+	var segmens = make([][]T, 0)
+	quantity := max / num
+	end := int64(0)
+	for i := int64(1); i <= num; i++ {
+		qu := i * quantity
+		if i != num {
+			segmens = append(segmens, arr[i-1+end:qu])
+		} else {
+			segmens = append(segmens, arr[i-1+end:])
+		}
+		end = qu - i
+	}
+	return segmens
 }
 
 // 数组去重

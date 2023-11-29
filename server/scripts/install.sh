@@ -141,13 +141,7 @@ run_status() {
       temp=$(systemctl is-active $1)
       if [[ x"${temp}" == x"active" ]]; then
           return 0
-      else
-          count=$(ps -ef | grep "$1" | grep -v "grep" | wc -l)
-          if [[ count -eq 0 ]]; then
-              return 1
-          else
-              return 0
-          fi
+      else return 1
       fi
 }
 
@@ -292,6 +286,12 @@ update(){
       return 0
   fi
   cd /usr/local/${appName}
+
+  echo -e "${yellow}正在更新管理脚本...${plain}"
+  rm -rf /usr/bin/${appName}
+  wget -N --no-check-certificate -O /usr/bin/${appName} ${manageScript}
+  chmod 777 /usr/bin/${appName}
+
 #  echo -e "${yellow}为防止关键数据丢失，正在备份原文件夹...${plain}"
 #  date=$(date +%Y_%m_%d_%H_%M)
 #  zip -rq AirGo_${date}.zip /usr/local/${appName}
@@ -315,11 +315,6 @@ update(){
   chmod 777 /usr/local/${appName}
   cd ..
   rm -rf temp
-
-  echo -e "${yellow}正在更新管理脚本...${plain}"
-  rm -rf /usr/bin/${appName}
-  wget -N --no-check-certificate -O /usr/bin/${appName} ${manageScript}
-  chmod 777 /usr/bin/${appName}
 
 #  confirm_msg "是否立即重启服务？" "n"
 #  if [[ $? != 0 ]]; then
@@ -441,9 +436,9 @@ main(){
     installationStatus='已安装'
   fi
   run_status ${appName}
-    if [[ $? -eq 0 ]]; then
-      runStatus='已运行'
-    fi
+  if [[ $? == 0 ]]; then
+    runStatus='已运行'
+  fi
 
   echo -e "
   ${green}${appName}-panel 管理脚本${plain}

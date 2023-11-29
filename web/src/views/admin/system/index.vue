@@ -26,20 +26,26 @@
               <el-input v-model="serverConfig.serverConfig.value.subscribe.sub_name"/>
               <div style="color: #9b9da1;display:block">更新订阅时显示的名字</div>
             </el-form-item>
-            <el-form-item label="AirGo后端地址">
+            <el-form-item label="官网地址">
+              <el-input v-model="serverConfig.serverConfig.value.subscribe.frontend_url"/>
+              <div style="color: #9b9da1">
+                例：http://abc.com:8899
+              </div>
+            </el-form-item>
+            <el-form-item label="网站后端地址">
               <el-input v-model="serverConfig.serverConfig.value.subscribe.backend_url"/>
               <div style="color: #9b9da1">
-                该地址与更新订阅、支付回调有关，请认真填写。前后分离时一般和前端.env中的VITE_API_URL保持一致即可；前后不分离时填公网可访问的后端地址。例如：http://abc.com:8899
+                该地址与更新订阅、支付回调有关，请认真填写。前后分离时一般和前端.env中的VITE_API_URL保持一致；前后不分离时填公网可访问的后端地址。例：http://abc.com:8899
               </div>
             </el-form-item>
             <el-divider></el-divider>
             <el-form-item label="新注册分配套餐">
-              <el-select v-model="serverConfig.serverConfig.value.subscribe.default_goods" placeholder="选择套餐" style="width: 30%">
+              <el-select v-model.number="serverConfig.serverConfig.value.subscribe.default_goods" placeholder="选择套餐" style="width: 30%">
                 <el-option
                     v-for="item in goodsList"
                     :key="item.id"
                     :label="item.subject"
-                    :value="item.subject"
+                    :value="item.id"
                 />
               </el-select>
             </el-form-item>
@@ -70,23 +76,25 @@
                          style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"></el-switch>
             </el-form-item>
             <el-form-item label="打卡获得流量范围">
-              <el-col :span="2">
-                <el-input-number v-model="serverConfig.serverConfig.value.subscribe.clock_in_min_traffic" :precision="0" :step="10" :min="0" :max="10000000" />
-              </el-col>
-              <el-col :span="2" style="text-align: center">
-                <span>-</span>
-              </el-col>
-              <el-col :span="3">
-                <el-input-number v-model="serverConfig.serverConfig.value.subscribe.clock_in_max_traffic" :precision="0" :step="10" :min="0" :max="10000000" />
-              </el-col>
-              <el-col :span="10">
+              <el-col >
+                <el-input-number v-model="serverConfig.serverConfig.value.subscribe.clock_in_min_traffic" :precision="0" :step="10" :min="0" :max="10000000" style="width: 120px" />
+                <span>---</span>
+                <el-input-number v-model="serverConfig.serverConfig.value.subscribe.clock_in_max_traffic" :precision="0" :step="10" :min="0" :max="10000000" style="width: 120px"/>
                 <span>MB</span>
+              </el-col>
+            </el-form-item>
+            <el-form-item label="打卡获得天数范围">
+              <el-col >
+                <el-input-number v-model="serverConfig.serverConfig.value.subscribe.clock_in_min_day" :precision="0" :step="1" :min="0" :max="10000" style="width: 120px" />
+                <span>---</span>
+                <el-input-number v-model="serverConfig.serverConfig.value.subscribe.clock_in_max_day" :precision="0" :step="1" :min="0" :max="10000" style="width: 120px"/>
+                <span>day</span>
               </el-col>
             </el-form-item>
 
             <el-divider></el-divider>
             <el-form-item>
-              <el-button @click="onSubmit('subscribe')" type="primary">保存</el-button>
+              <el-button @click="onSubmit()" type="primary">保存</el-button>
             </el-form-item>
           </el-form>
         </el-tab-pane>
@@ -131,21 +139,21 @@
 
         <el-tab-pane label="邮件">
           <el-form :model="serverConfig.serverConfig.value.email" label-width="100px">
-            <el-form-item label="服务器地址">
+            <el-form-item label="服务器">
               <el-input v-model="serverConfig.serverConfig.value.email.email_host" placeholder="mail.example.com"/>
             </el-form-item>
             <el-form-item label="端口">
               <el-input v-model.number="serverConfig.serverConfig.value.email.email_port" type="number"/>
             </el-form-item>
-            <el-form-item label="账户">
+            <el-form-item label="邮箱账户">
               <el-input v-model="serverConfig.serverConfig.value.email.email_from" placeholder="10010@qq.com"/>
             </el-form-item>
-            <el-form-item label="别名">
+            <el-form-item label="邮箱别名">
               <el-input v-model="serverConfig.serverConfig.value.email.email_from_alias" placeholder="10010@foxmail.com"/>
               <div style="color: #9b9da1">*例如：qq邮箱可以设置foxmil别名。发送邮件时优先显示别名。无特殊情况可忽略本项</div>
             </el-form-item>
-            <el-form-item label="昵称">
-              <el-input v-model="serverConfig.serverConfig.value.email.email_nickname" placeholder="吊炸天机场管理员"/>
+            <el-form-item label="账户昵称">
+              <el-input v-model="serverConfig.serverConfig.value.email.email_nickname" placeholder="Admin"/>
             </el-form-item>
             <el-form-item label="密码">
               <el-input v-model="serverConfig.serverConfig.value.email.email_secret" type="password"/>
@@ -160,7 +168,7 @@
             </el-form-item>
             <el-divider></el-divider>
             <el-form-item>
-              <el-button @click="onSubmit('email')" type="primary">保存</el-button>
+              <el-button @click="onSubmit()" type="primary">保存</el-button>
               <el-button @click="onTestEmail" >测试</el-button>
             </el-form-item>
           </el-form>
@@ -203,10 +211,48 @@
               <el-input v-model="serverConfig.serverConfig.value.security.jwt.expires_time"/>
             </el-form-item>
             <el-form-item>
-              <el-button @click="onSubmit('security')" type="primary">保存</el-button>
+              <el-button @click="onSubmit()" type="primary">保存</el-button>
             </el-form-item>
           </el-form>
         </el-tab-pane>
+
+        <el-tab-pane label="通知">
+
+          <el-form :model="serverConfig.serverConfig.value.notice" label-width="120px" label-position="top">
+
+            <el-card>
+              <el-form-item label="TG bot token">
+                <el-input v-model="serverConfig.serverConfig.value.notice.bot_token"/>
+              </el-form-item>
+              <el-form-item label="TG管理员账号(多个账号换行)">
+                <el-input v-model="serverConfig.serverConfig.value.notice.tg_admin" type="textarea" autosize/>
+              </el-form-item>
+
+              <el-form-item label="节点离线通知">
+                <el-switch v-model="serverConfig.serverConfig.value.notice.when_node_offline" inline-prompt active-text="开启"
+                           inactive-text="关闭"
+                           style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"></el-switch>
+              </el-form-item>
+              <el-form-item label="用户注册通知">
+                <el-switch v-model="serverConfig.serverConfig.value.notice.when_user_registered" inline-prompt active-text="开启"
+                           inactive-text="关闭"
+                           style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"></el-switch>
+              </el-form-item>
+              <el-form-item label="用户购买通知">
+                <el-switch v-model="serverConfig.serverConfig.value.notice.when_user_purchased" inline-prompt active-text="开启"
+                           inactive-text="关闭"
+                           style="--el-switch-on-color: #13ce66; --el-switch-off-color: #ff4949"></el-switch>
+              </el-form-item>
+
+            </el-card>
+
+            <el-form-item style="margin-top: 20px">
+              <el-button @click="onSubmit()" type="primary">保存</el-button>
+            </el-form-item>
+          </el-form>
+
+        </el-tab-pane>
+
       </el-tabs>
       <PayDialog ref="PayDialogRef" @refresh="payStore.getPayList()"></PayDialog>
     </el-card>
@@ -274,22 +320,8 @@ const openPayDialog = (type: string, row?: PayInfo) => {
 }
 
 //保存提交
-const onSubmit = (type:string) => {
-  switch (type){
-    case "security":
-      serverStore.updateServerConfig({"security":serverConfig.serverConfig.value.security})
-      break
-    case "email":
-      serverStore.updateServerConfig({"email":serverConfig.serverConfig.value.email})
-      break
-    case "subscribe":
-      serverStore.updateServerConfig({"subscribe":serverConfig.serverConfig.value.subscribe})
-      break
-    default:
-      break
-
-  }
-
+const onSubmit = () => {
+  serverStore.updateServerConfig(serverConfig.serverConfig.value)
   setTimeout(() => {
     serverStore.getServerConfig()
     serverStore.getPublicServerConfig()
@@ -297,7 +329,6 @@ const onSubmit = (type:string) => {
 }
 //删除支付
 const deletePay = (data: PayInfo) => {
-  // payApi.deletePayApi(data).then((res) => {
   request(apiStoreData.api.value.pay_deletePay, data).then((res) => {
     setTimeout(() => {
       payStore.getPayList(); //获取支付列表

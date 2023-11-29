@@ -37,9 +37,10 @@ export const useServerStore = defineStore("serverStore", {
                 is_multipoint: true,
                 sub_name: '',
                 backend_url: '',
+                frontend_url: '',
                 api_prefix: '',
                 tek: '',
-                default_goods: '',
+                default_goods: 0,
                 enabled_rebate: true,    //是否开启返利
                 rebate_rate: 0,          //返利率
                 enabled_deduction: true, //是否开启旧套餐抵扣
@@ -47,18 +48,28 @@ export const useServerStore = defineStore("serverStore", {
                 enabled_clock_in: true,
                 clock_in_min_traffic: 100,
                 clock_in_max_traffic: 1000,
+                clock_in_min_day: 0,
+                clock_in_max_day: 0,
             },
 
             email: {
                 email_from: '',
+                email_from_alias:'Admin',
                 email_secret: '',
                 email_host: '',
-                email_port: 0,
-                email_is_ssl: true,
-                email_nickname: '',
+                email_port: 465,
+                email_is_ssl: false,
+                email_nickname: '管理员',
                 email_subject: '',
                 email_content: '',
             },
+            notice:{
+                bot_token:'',
+                tg_admin: '',
+                when_user_registered: false,
+                when_user_purchased: false,
+                when_node_offline: false,
+            } as Notice,
 
         } as Server,
         publicServerConfig: {
@@ -94,6 +105,7 @@ export const useServerStore = defineStore("serverStore", {
             const apiStore = useApiStore()
             const apiStoreData = storeToRefs(apiStore)
             const res = await request(apiStoreData.api.value.server_updateSetting, data)
+            ElMessage.success(res.msg)
         }
     }
 })

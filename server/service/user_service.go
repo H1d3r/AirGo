@@ -1,8 +1,8 @@
 package service
 
 import (
-	"AirGo/global"
 	"fmt"
+	"github.com/ppoonk/AirGo/global"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 	"os"
@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"AirGo/model"
-	encrypt_plugin "AirGo/utils/encrypt_plugin"
 	"errors"
+	"github.com/ppoonk/AirGo/model"
+	encrypt_plugin "github.com/ppoonk/AirGo/utils/encrypt_plugin"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -28,11 +28,30 @@ func Register(u *model.User) error {
 			UUID:           uuid.NewV4(),
 			UserName:       u.UserName,
 			NickName:       u.UserName,
-			Password:       encrypt_plugin.BcryptEncode(u.Password),
-			RoleGroup:      []model.Role{{ID: 2}}, //默认角色,普通用户
-			InvitationCode: encrypt_plugin.RandomString(8),
-			ReferrerCode:   u.ReferrerCode,
+			Avatar:         "",                                      //头像
+			Password:       encrypt_plugin.BcryptEncode(u.Password), //密码
+			RoleGroup:      []model.Role{{ID: 2}},                   //默认角色：普通用户角色
+			InvitationCode: encrypt_plugin.RandomString(8),          //邀请码
+			ReferrerCode:   u.ReferrerCode,                          //推荐人
+			SubscribeInfo: model.SubscribeInfo{
+				SubscribeUrl: encrypt_plugin.RandomString(8), //随机字符串订阅url
+			},
 		}
+		//通知
+		if global.Server.Notice.WhenUserRegistered {
+			global.GoroutinePool.Submit(func() {
+				if global.Server.Notice.TGAdmin == "" {
+					return
+				}
+				tgIDs := strings.Fields(global.Server.Notice.TGAdmin)
+				for _, v := range tgIDs {
+					chatID, _ := strconv.ParseInt(v, 10, 64)
+					TGBotSendMessage(chatID, "新注册用户："+newUser.UserName)
+				}
+
+			})
+		}
+
 		return CreateUser(NewUserSubscribe(&newUser))
 	} else {
 		return err
@@ -67,11 +86,11 @@ func NewUser(u model.User) error {
 // 新注册用户分配套餐
 func NewUserSubscribe(u *model.User) *model.User {
 	//查询商品信息
-	if global.Server.Subscribe.DefaultGoods == "" {
+	if global.Server.Subscribe.DefaultGoods == 0 {
 		return u
 	}
 	var goods = model.Goods{
-		Subject: global.Server.Subscribe.DefaultGoods,
+		ID: global.Server.Subscribe.DefaultGoods,
 	}
 	//查询默认套餐
 	g, _, err := CommonSqlFind[model.Goods, model.Goods, model.Goods](goods)
@@ -103,6 +122,18 @@ func Login(u *model.UserLogin) (*model.User, error) {
 func FindUserByID(id int64) (*model.User, error) {
 	var u model.User
 	err := global.DB.First(&u, id).Error
+	return &u, err
+}
+
+// 查用户 by tg_id
+func FindUserByTgID(tgID int64) (*model.User, error) {
+	var u model.User
+	err := global.DB.Where("tg_id = ?", tgID).First(&u).Error
+	return &u, err
+}
+func FindUserByUserName(userName string) (*model.User, error) {
+	var u model.User
+	err := global.DB.Where("user_name = ?", userName).First(&u).Error
 	return &u, err
 }
 
@@ -292,20 +323,24 @@ func RemainHandle(uid int64, remain string) {
 }
 
 // 打卡
-func ClockIn(uID int64) (int, error) {
+func ClockIn(uID int64) (int, int, error) {
 	//查询用户信息
 	user, err := GetUserInfo(uID)
 	if err != nil {
-		return 0, err
+		return 0, 0, err
 	}
 	//判断订阅是否有效
 	if !user.SubscribeInfo.SubStatus {
-		return 0, errors.New("subscribe is expired")
+		return 0, 0, errors.New("subscribe is expired")
 	}
-	//随机
+	//随机流量
 	t := encrypt_plugin.RandomNumber(int(global.Server.Subscribe.ClockInMinTraffic), int(global.Server.Subscribe.ClockInMaxTraffic)) //MB
 	user.SubscribeInfo.T = int64(t)*1024*1024 + user.SubscribeInfo.T
+	//随机天数
+	day := encrypt_plugin.RandomNumber(int(global.Server.Subscribe.ClockInMinDay), int(global.Server.Subscribe.ClockInMaxDay))
+	*user.SubscribeInfo.ExpiredAt = user.SubscribeInfo.ExpiredAt.AddDate(0, 0, day)
+
 	err = SaveUser(user)
-	return t, err
+	return t, day, err
 
 }

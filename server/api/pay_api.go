@@ -1,18 +1,19 @@
 package api
 
 import (
-	"AirGo/global"
-	"AirGo/model"
-	"AirGo/service"
-	"AirGo/utils/other_plugin"
-	"AirGo/utils/response"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/ppoonk/AirGo/global"
+	"github.com/ppoonk/AirGo/model"
+	"github.com/ppoonk/AirGo/service"
+	"github.com/ppoonk/AirGo/utils/response"
 	"strconv"
+	"strings"
 )
 
 // 支付主逻辑
 func Purchase(ctx *gin.Context) {
-	uIDInt, ok := other_plugin.GetUserIDFromGinContext(ctx)
+	uIDInt, ok := GetUserIDFromGinContext(ctx)
 	if !ok {
 		response.Fail("Purchase error:user id error", nil, ctx)
 		return
@@ -164,6 +165,17 @@ func EpayNotify(ctx *gin.Context) {
 	})
 	global.GoroutinePool.Submit(func() {
 		service.UpdateUserSubscribe(&sysOrder) //更新用户订阅信息
+	})
+	global.GoroutinePool.Submit(func() { //通知
+		if global.Server.Notice.TGAdmin == "" {
+			return
+		}
+		tgIDs := strings.Fields(global.Server.Notice.TGAdmin)
+		for _, v := range tgIDs {
+			chatID, _ := strconv.ParseInt(v, 10, 64)
+			service.TGBotSendMessage(chatID, fmt.Sprintf("用户：%s\n购买订阅：%s\n销售价格：%s\n订单金额：%s\n支付方式：%s", sysOrder.UserName, sysOrder.Subject, sysOrder.Price, sysOrder.TotalAmount, sysOrder.PayType))
+		}
+
 	})
 	//返回success以表示服务器接收到了订单通知
 	ctx.String(200, "success")

@@ -1,12 +1,12 @@
 package service
 
 import (
-	"AirGo/global"
-	"AirGo/model"
-	"AirGo/utils/encrypt_plugin"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"github.com/ppoonk/AirGo/global"
+	"github.com/ppoonk/AirGo/model"
+	"github.com/ppoonk/AirGo/utils/encrypt_plugin"
 	uuid "github.com/satori/go.uuid"
 	"gopkg.in/yaml.v2"
 	"gorm.io/gorm"
@@ -14,12 +14,6 @@ import (
 	"strconv"
 	"strings"
 )
-
-func Show(data any) {
-	b, _ := json.Marshal(data)
-	fmt.Println(string(b))
-
-}
 
 // 获取订阅
 func GetUserSub(url string, subType string) string {
@@ -37,24 +31,36 @@ func GetUserSub(url string, subType string) string {
 	expiredBd1 := (float64(u.SubscribeInfo.T - u.SubscribeInfo.U - u.SubscribeInfo.D)) / 1024 / 1024 / 1024
 	expiredBd2 := strconv.FormatFloat(expiredBd1, 'f', 2, 64)
 
-	var firstNode = model.Node{
-		Remarks:  "到期时间:" + expiredTime,
-		Address:  global.Server.Subscribe.SubName,
-		Port:     6666,
-		Aid:      0,
-		Network:  "ws",
-		Enabled:  true,
-		NodeType: "vmess",
+	var firstNode, secondNode model.Node
+	if len(goods.Nodes) > 0 {
+		firstNode = goods.Nodes[0]
+		firstNode.Remarks = "到期时间:" + expiredTime
+
+		secondNode = goods.Nodes[0]
+		secondNode.Remarks = "剩余流量:" + expiredBd2 + "GB"
+
+	} else {
+		firstNode = model.Node{
+			Remarks:  "到期时间:" + expiredTime,
+			Address:  global.Server.Subscribe.SubName,
+			Port:     6666,
+			Aid:      0,
+			Network:  "ws",
+			Enabled:  true,
+			NodeType: "vmess",
+		}
+		secondNode = model.Node{
+			Remarks:  "剩余流量:" + expiredBd2 + "GB",
+			Address:  global.Server.Subscribe.SubName,
+			Port:     6666,
+			Aid:      0,
+			Network:  "ws",
+			Enabled:  true,
+			NodeType: "vmess",
+		}
+
 	}
-	var secondNode = model.Node{
-		Remarks:  "剩余流量:" + expiredBd2 + "GB",
-		Address:  global.Server.Subscribe.SubName,
-		Port:     6666,
-		Aid:      0,
-		Network:  "ws",
-		Enabled:  true,
-		NodeType: "vmess",
-	}
+
 	//插入计算剩余天数，流量
 	goods.Nodes = append(goods.Nodes, model.Node{}, model.Node{})
 	copy(goods.Nodes[2:], goods.Nodes[0:])
@@ -73,21 +79,45 @@ func GetUserSub(url string, subType string) string {
 	//根据subType生成不同客户端订阅
 	switch subType {
 	case "v2ray":
-		return V2rayNGSubscribe(&goods.Nodes, u)
+		return V2raySubscribe(&goods.Nodes, u)
+	case "singbox":
+		return SingboxSubscribe(&goods.Nodes, u)
 	case "clash":
 		return ClashSubscribe(&goods.Nodes, u)
+	case "shadowrocket":
+		return ShadowrocketSubscribe(&goods.Nodes, u)
 	default:
-		return V2rayNGSubscribe(&goods.Nodes, u)
+		return SingboxSubscribe(&goods.Nodes, u)
 	}
 }
+func ShadowrocketSubscribe(nodes *[]model.Node, user model.User) string {
+	var node []model.Shadowrocket
 
-// v2rayNG 订阅
-func V2rayNGSubscribe(nodes *[]model.Node, user model.User) string {
+	for _, v := range *nodes {
+		item := model.Shadowrocket{}
+		item.Host = v.Address
+		item.Port = fmt.Sprintf("%d", v.Port)
+		item.Type = "VLESS"
+		node = append(node, item)
+	}
+	b, err := json.Marshal(node)
+	fmt.Println("err:", err)
+	fmt.Println("b:", string(b))
+	return string(b)
+
+}
+
+func SingboxSubscribe(nodes *[]model.Node, user model.User) string {
 	var subArr []string
 	for _, v := range *nodes {
 		//剔除禁用节点
 		if !v.Enabled {
 			continue
+		}
+		//中转节点修改ip和端口
+		if v.EnableTransfer {
+			v.Address = v.TransferAddress
+			v.Port = v.TransferPort
 		}
 		switch v.NodeType {
 		case "vmess":
@@ -99,12 +129,12 @@ func V2rayNGSubscribe(nodes *[]model.Node, user model.User) string {
 				subArr = append(subArr, res)
 			}
 			continue
-		case "vless", "trojan":
+		case "vless", "trojan", "hysteria":
 			if v.IsSharedNode {
 				uuid, _ := uuid.FromString(v.UUID)
 				user = model.User{UUID: uuid, SubscribeInfo: model.SubscribeInfo{Host: v.Host}}
 			}
-			if res := V2rayNGVlessTrojan(v, user); res != "" {
+			if res := V2rayNGVlessTrojanHysteria(v, user); res != "" {
 				subArr = append(subArr, res)
 			}
 			continue
@@ -123,6 +153,60 @@ func V2rayNGSubscribe(nodes *[]model.Node, user model.User) string {
 		}
 	}
 	return base64.StdEncoding.EncodeToString([]byte(strings.Join(subArr, "\r\n")))
+}
+
+func V2raySubscribe(nodes *[]model.Node, user model.User) string {
+
+	var subArr []string
+	for _, v := range *nodes {
+		//剔除禁用节点
+		if !v.Enabled {
+			continue
+		}
+		//中转节点修改ip和端口
+		if v.EnableTransfer {
+			v.Address = v.TransferAddress
+			v.Port = v.TransferPort
+		}
+		//剔除xray还未支持的一些协议
+		if v.NodeType == "hysteria" {
+			continue
+		}
+		switch v.NodeType {
+		case "vmess":
+			if v.IsSharedNode {
+				uuid, _ := uuid.FromString(v.UUID)
+				user = model.User{UUID: uuid, SubscribeInfo: model.SubscribeInfo{Host: v.Host}}
+			}
+			if res := V2rayNGVmess(v, user); res != "" {
+				subArr = append(subArr, res)
+			}
+			continue
+		case "vless", "trojan":
+			if v.IsSharedNode {
+				uuid, _ := uuid.FromString(v.UUID)
+				user = model.User{UUID: uuid, SubscribeInfo: model.SubscribeInfo{Host: v.Host}}
+			}
+			if res := V2rayNGVlessTrojanHysteria(v, user); res != "" {
+				subArr = append(subArr, res)
+			}
+			continue
+		case "shadowsocks":
+			if v.IsSharedNode {
+				if res := V2rayNGShadowsocksShared(v); res != "" {
+					subArr = append(subArr, res)
+				}
+
+			} else {
+				if res := V2rayNGShadowsocks(v, user); res != "" {
+					subArr = append(subArr, res)
+				}
+			}
+			continue
+		}
+	}
+	return base64.StdEncoding.EncodeToString([]byte(strings.Join(subArr, "\r\n")))
+
 }
 
 // v2rayNG vmess
@@ -168,17 +252,20 @@ func V2rayNGVmess(node model.Node, user model.User) string {
 	return "vmess://" + vmessStr
 }
 
-// v2rayNG vless trojan
-func V2rayNGVlessTrojan(node model.Node, user model.User) string {
+// v2rayNG vless trojan hysteria
+func V2rayNGVlessTrojanHysteria(node model.Node, user model.User) string {
 	var vlessUrl url.URL
 	switch node.NodeType {
 	case "vless":
 		vlessUrl.Scheme = "vless"
 	case "trojan":
 		vlessUrl.Scheme = "trojan"
+	case "hysteria":
+		vlessUrl.Scheme = "hy2"
 	}
 	vlessUrl.User = url.UserPassword(user.UUID.String(), "")
 	vlessUrl.Host = node.Address + ":" + strconv.FormatInt(node.Port, 10)
+
 	values := url.Values{}
 	switch vlessUrl.Scheme {
 	case "vless":
@@ -212,7 +299,12 @@ func V2rayNGVlessTrojan(node model.Node, user model.User) string {
 			values.Add("spx", node.SpiderX)
 			values.Add("sni", node.Sni)
 			values.Add("sid", node.ShortId)
+		default:
+			values.Add("security", "none")
 		}
+	case "hy2":
+		values.Add("sni", node.Sni)
+
 	case "trojan":
 	}
 	vlessUrl.RawQuery = values.Encode()
@@ -273,12 +365,17 @@ func ClashSubscribe(nodes *[]model.Node, user model.User) string {
 		if !v.Enabled {
 			continue
 		}
+		//中转节点修改ip和端口
+		if v.EnableTransfer {
+			v.Address = v.TransferAddress
+			v.Port = v.TransferPort
+		}
 		nameArr = append(nameArr, v.Remarks)
 		var proxy model.ClashProxy
 		if v.IsSharedNode { //共享节点
-			proxy = ClashVmessVlessTrojanShared(v)
+			proxy = ClashVmessVlessTrojanHysteriaShared(v)
 		} else {
-			proxy = ClashVmessVlessTrojan(v, user)
+			proxy = ClashVmessVlessTrojanHysteria(v, user)
 		}
 
 		proxiesArr = append(proxiesArr, proxy)
@@ -314,7 +411,7 @@ func ClashSubscribe(nodes *[]model.Node, user model.User) string {
 	clashYaml.Secret = ""
 	clashYaml.Proxies = proxiesArr
 	clashYaml.ProxyGroups = append(clashYaml.ProxyGroups, proxyGroup1, proxyGroup2, proxyGroup3)
-	clashYaml.Rules = []string{
+	clashYaml.Rules = []string{ //注：规则写的简单，后期再优化
 		"DOMAIN-SUFFIX,local,DIRECT",
 		"IP-CIDR,127.0.0.0/8,DIRECT",
 		"IP-CIDR,172.16.0.0/12,DIRECT",
@@ -335,14 +432,14 @@ func ClashSubscribe(nodes *[]model.Node, user model.User) string {
 
 }
 
-// Clash vmess vless trojan
-func ClashVmessVlessTrojan(n model.Node, user model.User) model.ClashProxy {
+// Clash vmess vless trojan hysteria
+func ClashVmessVlessTrojanHysteria(n model.Node, user model.User) model.ClashProxy {
 	var proxy model.ClashProxy
 	switch n.NodeType {
 	case "vmess":
 		proxy.Type = "vmess"
 		proxy.Uuid = user.UUID.String()
-		proxy.Alterid = fmt.Sprintf("%d", n.Aid)
+		proxy.Alterid = n.Aid
 		proxy.Cipher = "auto"
 	case "vless":
 		proxy.Type = "vless"
@@ -352,9 +449,16 @@ func ClashVmessVlessTrojan(n model.Node, user model.User) model.ClashProxy {
 		proxy.Type = "trojan"
 		proxy.Uuid = user.UUID.String()
 		proxy.Sni = n.Sni
+	case "hysteria":
+		proxy.Type = "hysteria2"
+		proxy.Password = user.UUID.String()
+		proxy.Sni = n.Sni
 	case "shadowsocks":
 		proxy.Type = "ss"
 		proxy.Cipher = n.Scy
+		if proxy.Cipher == "chacha20-poly1305" {
+			proxy.Cipher = "chacha20-ietf-poly1305"
+		}
 		switch strings.HasPrefix(n.Scy, "2022") {
 		case true:
 			p1 := n.Scy
@@ -420,13 +524,13 @@ func ClashVmessVlessTrojan(n model.Node, user model.User) model.ClashProxy {
 	return proxy
 }
 
-func ClashVmessVlessTrojanShared(n model.Node) model.ClashProxy {
+func ClashVmessVlessTrojanHysteriaShared(n model.Node) model.ClashProxy {
 	var proxy model.ClashProxy
 	switch n.NodeType {
 	case "vmess":
 		proxy.Type = "vmess"
 		proxy.Uuid = n.UUID
-		proxy.Alterid = fmt.Sprintf("%d", n.Aid)
+		proxy.Alterid = n.Aid
 		proxy.Cipher = "auto"
 	case "vless":
 		proxy.Type = "vless"
@@ -434,6 +538,10 @@ func ClashVmessVlessTrojanShared(n model.Node) model.ClashProxy {
 		proxy.Flow = n.VlessFlow
 	case "trojan":
 		proxy.Type = "trojan"
+		proxy.Uuid = n.UUID
+		proxy.Sni = n.Sni
+	case "hysteria":
+		proxy.Type = "hysteria2"
 		proxy.Uuid = n.UUID
 		proxy.Sni = n.Sni
 	case "shadowsocks":

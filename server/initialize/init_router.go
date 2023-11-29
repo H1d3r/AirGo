@@ -1,12 +1,12 @@
 package initialize
 
 import (
-	"AirGo/api"
-	"AirGo/global"
-	"AirGo/middleware"
-	"AirGo/web"
 	"context"
 	"github.com/gin-gonic/gin"
+	"github.com/ppoonk/AirGo/api"
+	"github.com/ppoonk/AirGo/global"
+	"github.com/ppoonk/AirGo/middleware"
+	"github.com/ppoonk/AirGo/web"
 	"net/http"
 	"os"
 	"os/signal"
@@ -222,6 +222,11 @@ func InitRouter() {
 		accessRouter.POST("/updateRoutes", api.UpdateRoutes)
 		accessRouter.POST("/deleteRoutes", api.DeleteRoutes)
 		accessRouter.POST("/getRoutesList", api.GetRoutesList)
+	}
+	//migration
+	migrationRouter := RouterGroup.Group("/migration").Use(middleware.ParseJwt(), middleware.Casbin())
+	{
+		migrationRouter.POST("/fromOther", api.Migration)
 	}
 
 	srv := &http.Server{

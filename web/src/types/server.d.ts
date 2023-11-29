@@ -6,8 +6,15 @@ declare interface Server {
     subscribe: Subscribe;
     email: Email;
     security: Security;
+    notice: Notice;
 }
-
+declare interface Notice {
+    bot_token: string;
+    tg_admin: string;
+    when_user_registered: boolean;
+    when_user_purchased: boolean;
+    when_node_offline: boolean;
+}
 declare interface Security {
     captcha: Captcha
     jwt: Jwt
@@ -29,11 +36,12 @@ declare interface Subscribe {
     is_multipoint: boolean;
 
     backend_url: string;
+    frontend_url: string;
     api_prefix: string;
 
     sub_name: string;
     tek: string;
-    default_goods: string;
+    default_goods: number;
     enabled_rebate: boolean;    //是否开启返利
     rebate_rate: number;        //返利率
     enabled_deduction: boolean; //是否开启旧套餐抵扣
@@ -42,6 +50,8 @@ declare interface Subscribe {
     enabled_clock_in: boolean
     clock_in_min_traffic: number
     clock_in_max_traffic: number
+    clock_in_min_day: number
+    clock_in_max_day: number
 }
 
 declare interface Captcha {
