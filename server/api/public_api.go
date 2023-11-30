@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/ppoonk/AirGo/global"
 	"github.com/ppoonk/AirGo/model"
@@ -54,6 +55,7 @@ func GetMailCode(ctx *gin.Context) {
 		response.Fail("GetMailCode error:"+err.Error(), nil, ctx)
 		return
 	}
+	fmt.Println("GetMailCode:", u)
 	//判断邮箱后缀
 	ok := other_plugin.In(u.UserName[strings.Index(u.UserName, "@"):], strings.Fields(global.Server.Subscribe.AcceptableEmailSuffixes))
 	if !ok {
@@ -86,7 +88,6 @@ func GetMailCode(ctx *gin.Context) {
 		err = mail_plugin.SendEmail(global.EmailDialer, from, global.Server.Email.EmailNickname, u.UserName, global.Server.Email.EmailSubject, originalText)
 		if err != nil {
 			global.Logrus.Error(err.Error())
-			//"The email verification code has failed to be sent.error:gomail: could not send email 1: gomail: invalid address "=?UTF-8?q?=E5=90=8A=E7=82=B8=E5=A4=A9=E6=9C=BA=E5=9C=BA=E7=AE=A1=E7=90=86?= =?UTF-8?q?=E5=91=98<poonk@foxmail.com>?=": mail: expected single address, got "?=""
 			response.Fail("The email verification code has failed to be sent. Error:"+err.Error(), nil, ctx)
 
 		} else {

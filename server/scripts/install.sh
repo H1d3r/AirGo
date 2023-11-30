@@ -65,17 +65,11 @@ open_ports(){
 
 set_dependences() {
     if [[ $(command -v yum) ]]; then
-      if [[ ! $(command -v wget) ]] || [[ ! $(command -v curl) ]] || [[ ! $(command -v git) ]] || [[ ! $(command -v socat) ]] || [[ ! $(command -v unzip) ]] || [[ ! $(command -v gawk) ]] || [[ ! $(command -v lsof) ]]; then
-          echo -e ${green}"安装依赖\n"${plain}
-          yum update -y
-          yum install wget curl git socat unzip gawk lsof -y
-      fi
+        yum update -y
+        yum install wget curl git socat unzip gawk lsof -y
     elif [[ $(command -v apt) ]]; then
-      if [[ ! $(command -v wget) ]] || [[ ! $(command -v curl) ]] || [[ ! $(command -v git) ]] || [[ ! $(command -v socat) ]] || [[ ! $(command -v unzip) ]] || [[ ! $(command -v gawk) ]] || [[ ! $(command -v lsof) ]]; then
-          echo -e ${green}"安装依赖\n"${plain}
-          apt update -y
-          apt install wget curl git socat unzip gawk lsof -y
-      fi
+        apt update -y
+        apt install wget curl git socat unzip gawk lsof -y
        echo -e "依赖已安装\n"
     fi
 }

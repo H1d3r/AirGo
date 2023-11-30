@@ -199,6 +199,11 @@ export const useUserStore = defineStore('userInfo', {
         async submitResetPassword() {
             const apiStore = useApiStore()
             return await request(apiStore.staticApi.user_resetUserPassword, this.loginData)
-        }
+        },
+        //发送验证码
+        async sendEmailCode(email:string){
+            const apiStore = useApiStore()
+            return await request(apiStore.staticApi.public_getEmailCode, {user_name:this.registerData.user_name+this.registerData.email_suffix})
+        },
     },
 });

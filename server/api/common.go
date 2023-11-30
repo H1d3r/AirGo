@@ -3,18 +3,19 @@ package api
 import (
 	"encoding/json"
 	"github.com/gin-gonic/gin"
+	"github.com/ppoonk/AirGo/global"
 	"github.com/ppoonk/AirGo/utils/encrypt_plugin"
 )
 
 // gin.Context中获取user id
 func GetUserIDFromGinContext(ctx *gin.Context) (int64, bool) {
-	userID, ok := ctx.Get("uID")
+	userID, ok := ctx.Get(global.CtxSetUserID)
 	return userID.(int64), ok
 }
 
 // gin.Context中获取user name
 func GetUserNameFromGinContext(ctx *gin.Context) (string, bool) {
-	userName, ok := ctx.Get("uName")
+	userName, ok := ctx.Get(global.CtxSetUserName)
 	return userName.(string), ok
 }
 

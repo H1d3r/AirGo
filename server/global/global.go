@@ -38,8 +38,14 @@ var (
 )
 
 const (
+	CtxSetUserName = "UserName"
+	CtxSetUserID   = "UserID"
 	//
-	UserRoleIds = "roleIds"
+	UserRouteList   = "UserRouteList"
+	AllRouteList    = "AllRouteList"
+	AllEnabledGoods = "AllEnabledGoods"
+	//
+	UserRoleIds = "UserRoleIds"
 	//
 	NodeStatus           = "status"
 	NodeStatusIsNotified = "notified"

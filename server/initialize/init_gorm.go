@@ -102,9 +102,8 @@ func GormMysql() *gorm.DB {
 func RegisterTables() {
 	err := global.DB.AutoMigrate(
 		// 用户表
-		model.User{},
-		//动态路由表
-		model.DynamicRoute{},
+		model.User{}, //动态路由表
+		// model.DynamicRoute{},
 		//角色表
 		model.Role{},
 		//casbin
