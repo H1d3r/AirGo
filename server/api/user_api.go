@@ -46,8 +46,9 @@ func Register(ctx *gin.Context) {
 		return
 	}
 	//校验邮箱验证码
+	userEmail := u.UserName + u.EmailSuffix
 	if global.Server.Subscribe.EnableEmailCode {
-		cacheEmail, ok := global.LocalCache.Get(u.UserName + "emailcode")
+		cacheEmail, ok := global.LocalCache.Get(userEmail + "emailcode")
 		if ok {
 			if cacheEmail != u.EmailCode {
 				response.Fail("Email verification code verification error", nil, ctx)
@@ -61,7 +62,7 @@ func Register(ctx *gin.Context) {
 	}
 	//处理邮箱后缀
 	err = service.Register(&model.User{
-		UserName:     u.UserName + u.EmailSuffix,
+		UserName:     userEmail,
 		Password:     u.Password,
 		ReferrerCode: u.ReferrerCode,
 	})
@@ -70,7 +71,7 @@ func Register(ctx *gin.Context) {
 		response.Fail("Register error:"+err.Error(), nil, ctx)
 		return
 	}
-	global.LocalCache.Delete(u.UserName + "emailcode")
+	global.LocalCache.Delete(userEmail + "emailcode")
 	response.OK("Register success", nil, ctx)
 }
 
@@ -111,10 +112,8 @@ func Login(c *gin.Context) {
 	var token string
 	cacheToken, ok := global.LocalCache.Get(l.UserName + "token")
 	if ok && cacheToken != "" {
-		fmt.Println("旧的token")
 		token = cacheToken.(string)
 	} else {
-		fmt.Println("重新token")
 		myCustomClaimsPrefix := jwt_plugin.MyCustomClaimsPrefix{
 			UserID:   user.ID,
 			UserName: user.UserName,
@@ -184,7 +183,7 @@ func GetUserInfo(ctx *gin.Context) {
 
 // 获取用户列表
 func GetUserlist(ctx *gin.Context) {
-	var params model.PaginationParams
+	var params model.FieldParamsReq
 	err := ctx.ShouldBind(&params)
 	if err != nil {
 		global.Logrus.Error(err.Error())
@@ -347,7 +346,6 @@ func GetSub(ctx *gin.Context) {
 
 	clientType := ""
 	ua := ctx.Request.Header.Get("User-Agent")
-	fmt.Println("ua:", ua)
 
 	if strings.HasPrefix(ua, "NekoBox") {
 		clientType = "NekoBox"

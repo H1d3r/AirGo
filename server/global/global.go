@@ -1,7 +1,6 @@
 package global
 
 import (
-	"context"
 	"github.com/casbin/casbin/v2"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 	"github.com/mojocn/base64Captcha"
@@ -32,9 +31,8 @@ var (
 	RateLimit          model.RateLimitRule             //限流器
 	GoroutinePool      *ants.Pool                      //线程池
 	Crontab            *cron.Cron                      //定时任务
-	CtxMap             map[string]*context.Context     //
-	CancelMap          map[string]*context.CancelFunc  //
 	TGBot              *tgbotapi.BotAPI                //tg bot
+	ContextGroup       *model.ContextGroup
 )
 
 const (

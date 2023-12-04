@@ -17,6 +17,7 @@ type Server struct {
 type Notice struct {
 	BotToken           string `json:"bot_token"`            //tg bot token
 	TGAdmin            string `json:"tg_admin"`             //tg admin
+	TGSocks5           string `json:"tg_socks5"`            //tg socks5代理
 	WhenUserRegistered bool   `json:"when_user_registered"` //用户注册后通知
 	WhenUserPurchased  bool   `json:"when_user_purchased"`  //用户购买成功后通知
 	WhenNodeOffline    bool   `json:"when_node_offline"`    //节点离线时通知

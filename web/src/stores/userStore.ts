@@ -173,7 +173,8 @@ export const useUserStore = defineStore('userInfo', {
         async getUserList(data?: object) {
             const apiStore = useApiStore()
             const res = await request(apiStore.api.user_getUserList, data)
-            this.userManageData.users = res.data
+            this.userManageData.users.user_list = res.data.data
+            this.userManageData.users.total = res.data.total
         },
         //新建用户
         async newUser(data?: object) {

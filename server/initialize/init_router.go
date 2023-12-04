@@ -148,7 +148,7 @@ func InitRouter() {
 	{
 		orderAdminRouter.POST("/getAllOrder", api.GetAllOrder)                         //获取全部订单，分页获取
 		orderAdminRouter.POST("/completedOrder", api.CompletedOrder)                   //完成订单
-		orderAdminRouter.POST("/getMonthOrderStatistics", api.GetMonthOrderStatistics) //获取时间范围内订单统计
+		orderAdminRouter.POST("/getMonthOrderStatistics", api.GetMonthOrderStatistics) //获取订单统计
 	}
 	//支付
 	payRouter := RouterGroup.Group("/pay").Use(middleware.RateLimitIP(), middleware.ParseJwt(), middleware.Casbin(), middleware.RateLimitVisit())
@@ -185,7 +185,6 @@ func InitRouter() {
 	//报表
 	reportRouter := RouterGroup.Group("/report").Use(middleware.RateLimitIP(), middleware.ParseJwt(), middleware.Casbin(), middleware.RateLimitVisit())
 	{
-		reportRouter.GET("/getDB", api.GetDB)
 		reportRouter.POST("/getTables", api.GetTables)
 		reportRouter.POST("/getColumn", api.GetColumn)
 		reportRouter.POST("/reportSubmit", api.ReportSubmit)
@@ -227,6 +226,18 @@ func InitRouter() {
 	migrationRouter := RouterGroup.Group("/migration").Use(middleware.ParseJwt(), middleware.Casbin())
 	{
 		migrationRouter.POST("/fromOther", api.Migration)
+	}
+	//ticket
+	ticketRouter := RouterGroup.Group("/ticket").Use(middleware.RateLimitIP(), middleware.ParseJwt(), middleware.Casbin(), middleware.RateLimitVisit())
+	{
+		ticketRouter.POST("/newTicket", api.NewTicket)
+		ticketRouter.POST("/deleteTicket", api.DeleteTicket)
+		ticketRouter.POST("/updateTicket", api.UpdateTicket)
+		ticketRouter.POST("/updateUserTicket", api.UpdateUserTicket)
+		ticketRouter.POST("/getUserTicketList", api.GetUserTicketList)
+		ticketRouter.POST("/getTicketList", api.GetTicketList)
+		ticketRouter.POST("/sendTicketMessage", api.SendTicketMessage)
+		ticketRouter.POST("/getTicketMessage", api.GetTicketMessage)
 	}
 
 	srv := &http.Server{

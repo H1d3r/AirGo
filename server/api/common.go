@@ -28,7 +28,6 @@ func EtagHandler(data any, ctx *gin.Context) {
 	}
 	str = string(b)
 	md5 = encrypt_plugin.Md5Encode(str, false)
-	//fmt.Println("md5:", md5)
 	if md5 == ctx.Request.Header.Get("If-None-Match") {
 		ctx.JSON(304, nil)
 		return

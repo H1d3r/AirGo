@@ -753,10 +753,15 @@ func VmessUrlForShadowrocket(node model.Node) string {
 	case global.NetworkGrpc:
 		values.Add("obfs", "grpc")
 		serviceName := node.Address
+		host := node.Address
+		if node.Host != "" {
+			host = node.Host
+		}
 		if node.ServiceName != "" {
 			serviceName = node.ServiceName
 		}
-		values.Add("host", serviceName)
+		values.Add("host", host)
+		values.Add("path", serviceName)
 	}
 	//tls
 	switch node.Security {

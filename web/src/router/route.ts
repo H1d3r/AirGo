@@ -106,6 +106,22 @@ export const staticRoutes: Array<RouteRecordRaw> = [
                 },
             },
             {
+                path: 'report',
+                name: 'report',
+                component: () => import('/@/components/report/index1.vue'),
+                meta: {
+                    title: '详情',
+                },
+            },
+            {
+                path: 'ticket',
+                name: 'ticket',
+                component: () => import('/@/views/ticket/index.vue'),
+                meta: {
+                    title: '详情',
+                },
+            },
+            {
                 path: 'test',
                 name: 'test',
                 component: () => import('/@/views/aaaDemo/index.vue'),

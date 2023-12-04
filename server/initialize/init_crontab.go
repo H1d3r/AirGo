@@ -5,8 +5,6 @@ import (
 	"github.com/ppoonk/AirGo/model"
 	"github.com/ppoonk/AirGo/service"
 	"github.com/robfig/cron/v3"
-	"strconv"
-	"strings"
 	"time"
 )
 
@@ -63,15 +61,7 @@ func InitCrontab() {
 		if text == "" {
 			return
 		}
-		if global.Server.Notice.TGAdmin == "" {
-			return
-		}
-		tgIDs := strings.Fields(global.Server.Notice.TGAdmin)
-		for _, v := range tgIDs {
-			chatID, _ := strconv.ParseInt(v, 10, 64)
-			service.TGBotSendMessage(chatID, text)
-		}
-
+		service.UnifiedPushMessage(text)
 	})
 	if err != nil {
 		global.Logrus.Error("检查节点状态并定时任务 error:", err)

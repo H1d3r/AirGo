@@ -179,9 +179,13 @@ func ParseVLessLink(link string) *model.NodeShared {
 	if urlQuery.Get("pbk") != "" {
 		node.PublicKey = urlQuery.Get("pbk")
 	}
+	if urlQuery.Get("sid") != "" {
+		node.ShortId = urlQuery.Get("sid")
+	}
 	if urlQuery.Get("allowInsecure") != "" {
 		node.AllowInsecure = true
 	}
+	Show(node)
 	return node
 }
 
@@ -302,7 +306,7 @@ func ParseSubUrl(urlStr string) *[]model.NodeShared {
 	//去掉前后空格
 	urlStr = strings.TrimSpace(urlStr)
 	//订阅url
-	if !strings.HasPrefix(urlStr, "vmess") && !strings.HasPrefix(urlStr, "vless") && !strings.HasPrefix(urlStr, "trojan") {
+	if !strings.HasPrefix(urlStr, "vmess") && !strings.HasPrefix(urlStr, "vless") && !strings.HasPrefix(urlStr, "trojan") && !strings.HasPrefix(urlStr, "hy2") {
 		if _, err := url.ParseRequestURI(urlStr); err == nil {
 			rsp, err := net_plugin.ClientWithDNS("223.6.6.6", 5*time.Second).Get(urlStr)
 			if err != nil {
@@ -334,7 +338,6 @@ func ParseSubUrl(urlStr string) *[]model.NodeShared {
 
 // 解析一条节点,vmess vless trojan hysteria
 func ParseOne(link string) *model.NodeShared {
-	//fmt.Println("解析一条链接", link)
 	u, err := url.Parse(link)
 	if err != nil {
 		return nil
@@ -346,6 +349,7 @@ func ParseOne(link string) *model.NodeShared {
 		}
 	case "vless":
 		if obj := ParseVLessLink(link); obj != nil {
+			Show(obj)
 			return obj
 		}
 	case "trojan":

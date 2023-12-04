@@ -40,18 +40,9 @@ func Register(u *model.User) error {
 		//通知
 		if global.Server.Notice.WhenUserRegistered {
 			global.GoroutinePool.Submit(func() {
-				if global.Server.Notice.TGAdmin == "" {
-					return
-				}
-				tgIDs := strings.Fields(global.Server.Notice.TGAdmin)
-				for _, v := range tgIDs {
-					chatID, _ := strconv.ParseInt(v, 10, 64)
-					TGBotSendMessage(chatID, "新注册用户："+newUser.UserName)
-				}
-
+				UnifiedPushMessage("新注册用户：" + newUser.UserName)
 			})
 		}
-
 		return CreateUser(NewUserSubscribe(&newUser))
 	} else {
 		return err
@@ -207,22 +198,25 @@ func ChangeSubHost(uID int64, host string) error {
 	return global.DB.Model(&model.User{ID: uID}).Updates(u).Error
 }
 
-// 获取自身信息
+// 获取信息
 func GetUserInfo(uID int64) (*model.User, error) {
 	var user model.User
 	return &user, global.DB.First(&user, uID).Error
 }
 
-// 获取用户列表,分页
-func GetUserlist(params *model.PaginationParams) (*model.UsersWithTotal, error) {
-	var userArr model.UsersWithTotal
-	var err error
-	if params.Search != "" {
-		err = global.DB.Model(&model.User{}).Where("user_name like ?", ("%" + params.Search + "%")).Count(&userArr.Total).Limit(int(params.PageSize)).Offset((int(params.PageNum) - 1) * int(params.PageSize)).Preload("RoleGroup").Find(&userArr.UserList).Error
-	} else {
-		err = global.DB.Model(&model.User{}).Count(&userArr.Total).Limit(int(params.PageSize)).Offset((int(params.PageNum) - 1) * int(params.PageSize)).Preload("RoleGroup").Find(&userArr.UserList).Error
+// 获取用户列表
+func GetUserlist(params *model.FieldParamsReq) (*model.CommonDataResp, error) {
+	var data model.CommonDataResp
+	var userList []model.User
+	_, dataSql := CommonSqlFindSqlHandler(params)
+	dataSql = dataSql[strings.Index(dataSql, "WHERE ")+6:]
+	err := global.DB.Model(&model.User{}).Where(dataSql).Count(&data.Total).Preload("RoleGroup").Find(&userList).Error
+	if err != nil {
+		global.Logrus.Error("GetUserlist error:", err.Error())
+		return nil, err
 	}
-	return &userArr, err
+	data.Data = userList
+	return &data, nil
 }
 
 // 更新用户信息

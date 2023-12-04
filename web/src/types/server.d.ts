@@ -11,6 +11,7 @@ declare interface Server {
 declare interface Notice {
     bot_token: string;
     tg_admin: string;
+    tg_socks5 :string;
     when_user_registered: boolean;
     when_user_purchased: boolean;
     when_node_offline: boolean;

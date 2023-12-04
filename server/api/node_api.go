@@ -85,14 +85,19 @@ func UpdateNode(ctx *gin.Context) {
 
 // 查询节点流量
 func GetNodeTraffic(ctx *gin.Context) {
-	var trafficParams model.PaginationParams
-	err := ctx.ShouldBind(&trafficParams)
+	var params model.FieldParamsReq
+	err := ctx.ShouldBind(&params)
 	if err != nil {
 		global.Logrus.Error(err.Error())
 		response.Fail("GetNodeTraffic error:"+err.Error(), nil, ctx)
 		return
 	}
-	res := service.GetNodeTraffic(trafficParams)
+	res, err := service.GetNodeTraffic(&params)
+	if err != nil {
+		global.Logrus.Error(err.Error())
+		response.Fail("GetNodeTraffic error:"+err.Error(), nil, ctx)
+		return
+	}
 	response.OK("GetNodeTraffic success", res, ctx)
 }
 
@@ -124,11 +129,13 @@ func NewNodeShared(ctx *gin.Context) {
 		return
 	}
 	nodeArr := service.ParseSubUrl(url.Url)
+	service.Show(nodeArr)
 	if nodeArr != nil {
 		for _, v := range *nodeArr {
 			n, _, _ := service.CommonSqlFind[model.NodeShared, model.NodeShared, model.NodeShared](model.NodeShared{
 				Remarks: v.Remarks,
 			})
+			service.Show(n)
 			if n.Remarks != "" {
 				continue
 			}

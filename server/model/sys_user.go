@@ -85,9 +85,3 @@ type UserChangePassword struct {
 	RePassword string `json:"re_password" binding:"required,eqfield=Password,max=20,min=4"` // 密码
 	EmailCode  string `json:"email_code"`
 }
-
-// users with total
-type UsersWithTotal struct {
-	Total    int64  `json:"total"`
-	UserList []User `json:"user_list"`
-}

@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/ppoonk/AirGo/global"
 	"github.com/ppoonk/AirGo/model"
@@ -55,7 +54,6 @@ func GetMailCode(ctx *gin.Context) {
 		response.Fail("GetMailCode error:"+err.Error(), nil, ctx)
 		return
 	}
-	fmt.Println("GetMailCode:", u)
 	//判断邮箱后缀
 	ok := other_plugin.In(u.UserName[strings.Index(u.UserName, "@"):], strings.Fields(global.Server.Subscribe.AcceptableEmailSuffixes))
 	if !ok {
