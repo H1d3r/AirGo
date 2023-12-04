@@ -25,12 +25,13 @@
         </el-button>
         <div v-if="state.isShowCollapse">
           <!--          report组件-->
-          <ReportComponent ref="reportRef" @getReportData="getReportData"></ReportComponent>
+          <ReportComponent ref="reportRef" @getReportData="getUserList"></ReportComponent>
         </div>
       </div>
       <el-table :data="userManageData.users.user_list" stripe style="width: 100%;flex: 1;" @sort-change="sortChange">
         <el-table-column type="index" label="序号" width="60" fixed/>
-        <el-table-column prop="user_name" label="账户名称" show-overflow-tooltip width="150" sortable="custom"></el-table-column>
+        <el-table-column prop="user_name" label="账户名称" show-overflow-tooltip width="150"
+                         sortable="custom"></el-table-column>
         <el-table-column prop="id" label="账户ID" show-overflow-tooltip width="80" sortable="custom"></el-table-column>
         <el-table-column prop="created_at" label="创建日期" show-overflow-tooltip width="150" sortable="custom">
           <template #default="{row}">
@@ -43,13 +44,15 @@
             <el-tag type="danger" v-else>禁用</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="subscribe_info.sub_status" label="订阅状态" show-overflow-tooltip width="100" sortable="custom">
+        <el-table-column prop="subscribe_info.sub_status" label="订阅状态" show-overflow-tooltip width="100"
+                         sortable="custom">
           <template #default="scope">
             <el-tag type="success" v-if="scope.row.subscribe_info.sub_status">启用</el-tag>
             <el-tag type="danger" v-else>禁用</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="subscribe_info.expired_at" label="订阅到期时间" show-overflow-tooltip width="150" sortable="custom">
+        <el-table-column prop="subscribe_info.expired_at" label="订阅到期时间" show-overflow-tooltip width="150"
+                         sortable="custom">
           <template #default="scope">
             <el-tag type="info">
               {{ DateStrtoTime(scope.row.subscribe_info.expired_at) }}
@@ -113,7 +116,7 @@
       >
       </el-pagination>
     </el-card>
-    <UserDialog ref="userDialogRef" @refresh=""/>
+    <UserDialog ref="userDialogRef" @refresh="getUserList"/>
   </div>
 </template>
 
@@ -127,8 +130,6 @@ import {storeToRefs} from 'pinia';
 import {useUserStore} from '/@/stores/userStore'
 import {useServerStore} from "/@/stores/serverStore";
 import {useReportStore} from "/@/stores/reportStore"
-
-import {request} from "/@/utils/request";
 import {useApiStore} from "/@/stores/apiStore";
 import {DateStrtoTime} from "../../../utils/formatTime";
 
@@ -171,12 +172,12 @@ const onOpenEditUser = (type: string, row: SysUser) => {
   userDialogRef.value.openDialog(type, row);
 };
 //
-const findUser=()=>{
+const findUser = () => {
   reportStoreData.reportParams.value.field_params_list[0].condition = 'like'
-  getReportData()
+  getUserList()
 }
 //请求数据
-const getReportData = () => {
+const getUserList = () => {
   userStore.getUserList(reportStoreData.reportParams.value)
 }
 
@@ -190,7 +191,7 @@ const onRowDel = (row: SysUser) => {
       .then(() => {
         userStore.deleteUser(row)
         setTimeout(() => {
-          getReportData()
+          getUserList()
         }, 500)
       })
       .catch(() => {
@@ -199,19 +200,19 @@ const onRowDel = (row: SysUser) => {
 // 分页改变
 const onHandleSizeChange = (val: number) => {
   if (state.isShowCollapse) {
-    getReportData()
+    getUserList()
   } else {
     reportStoreData.reportParams.value.pagination.page_size = val;
-    getReportData()
+    getUserList()
   }
 };
 // 分页改变
 const onHandleCurrentChange = (val: number) => {
   if (state.isShowCollapse) {
-    getReportData()
+    getUserList()
   } else {
     reportStoreData.reportParams.value.pagination.page_num = val;
-    getReportData()
+    getUserList()
   }
 };
 //排序监听
@@ -219,17 +220,17 @@ const sortChange = (column: any) => {
   //处理嵌套字段
   let p = (column.prop as string)
   if (p.indexOf('.') !== -1) {
-   p = p.slice(p.indexOf('.')+1)
+    p = p.slice(p.indexOf('.') + 1)
   }
-  switch (column.order){
+  switch (column.order) {
     case 'ascending':
-      reportStoreData.reportParams.value.pagination.order_by=p+" ASC"
+      reportStoreData.reportParams.value.pagination.order_by = p + " ASC"
       break
     default:
-      reportStoreData.reportParams.value.pagination.order_by=p+" DESC"
+      reportStoreData.reportParams.value.pagination.order_by = p + " DESC"
       break
   }
-  getReportData()
+  getUserList()
 
 }
 //
@@ -238,7 +239,7 @@ onBeforeMount(() => {
 });
 //
 onMounted(() => {
-  getReportData()
+  getUserList()
 });
 
 //开启高级查询折叠面板

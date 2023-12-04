@@ -60,6 +60,7 @@ func Register(ctx *gin.Context) {
 			return
 		}
 	}
+	global.LocalCache.Delete(userEmail + "emailcode")
 	//处理邮箱后缀
 	err = service.Register(&model.User{
 		UserName:     userEmail,

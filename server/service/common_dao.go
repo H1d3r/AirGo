@@ -75,7 +75,7 @@ func CommonSqlFindWithFieldParams(fieldParams *model.FieldParamsReq) (any, int64
 	if err != nil {
 		return nil, 0, err
 	}
-	err = global.DB.Debug().Raw(dataSql).Scan(&data).Error
+	err = global.DB.Raw(dataSql).Scan(&data).Error
 	return data, total, err
 }
 
@@ -149,6 +149,6 @@ func CommonSqlUpdateMultiLine[T1 any](data T1, name string, columns []string) er
 // 通用增加
 func CommonSqlCreate[T1 any](data T1) error {
 	var err error
-	err = global.DB.Debug().Create(&data).Error
+	err = global.DB.Create(&data).Error
 	return err
 }

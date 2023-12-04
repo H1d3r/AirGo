@@ -78,7 +78,7 @@ get_latest_version() {
           latestVersion=$(curl -Ls $githubApi | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
           if [[ ! -n "$latestVersion" ]]; then
               echo -e "${red}获取最新版本失败，请稍后重试${plain}"
-              exit 1
+#              exit 1
           fi
 }
 get_current_version(){

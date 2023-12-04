@@ -129,13 +129,11 @@ func NewNodeShared(ctx *gin.Context) {
 		return
 	}
 	nodeArr := service.ParseSubUrl(url.Url)
-	service.Show(nodeArr)
 	if nodeArr != nil {
 		for _, v := range *nodeArr {
 			n, _, _ := service.CommonSqlFind[model.NodeShared, model.NodeShared, model.NodeShared](model.NodeShared{
 				Remarks: v.Remarks,
 			})
-			service.Show(n)
 			if n.Remarks != "" {
 				continue
 			}

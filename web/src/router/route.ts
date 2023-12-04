@@ -46,9 +46,7 @@ export const dynamicRoutes: Array<RouteRecordRaw> = [
         meta: {
             isKeepAlive: true,
         },
-        children: [
-
-        ],
+        children: [],
     },
 
 ];
@@ -96,27 +94,11 @@ export const staticRoutes: Array<RouteRecordRaw> = [
     {
         path: '/static',
         name: 'static',
-        children:[
+        children: [
             {
                 path: 'showArticle',
                 name: 'showArticle',
                 component: () => import('/@/views/article/show_article.vue'),
-                meta: {
-                    title: '详情',
-                },
-            },
-            {
-                path: 'report',
-                name: 'report',
-                component: () => import('/@/components/report/index1.vue'),
-                meta: {
-                    title: '详情',
-                },
-            },
-            {
-                path: 'ticket',
-                name: 'ticket',
-                component: () => import('/@/views/ticket/index.vue'),
                 meta: {
                     title: '详情',
                 },

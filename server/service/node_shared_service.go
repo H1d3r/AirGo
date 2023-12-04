@@ -185,7 +185,6 @@ func ParseVLessLink(link string) *model.NodeShared {
 	if urlQuery.Get("allowInsecure") != "" {
 		node.AllowInsecure = true
 	}
-	Show(node)
 	return node
 }
 
@@ -349,7 +348,6 @@ func ParseOne(link string) *model.NodeShared {
 		}
 	case "vless":
 		if obj := ParseVLessLink(link); obj != nil {
-			Show(obj)
 			return obj
 		}
 	case "trojan":

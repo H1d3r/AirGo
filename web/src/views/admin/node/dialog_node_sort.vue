@@ -40,6 +40,7 @@ const nodeStore = useNodeStore()
 
 const apiStore = useApiStore()
 const apiStoreData = storeToRefs(apiStore)
+const emit = defineEmits(['refresh'])
 
 //定义参数
 const state = reactive({
@@ -73,11 +74,9 @@ const nodeSortHandler = (data: Array<any>) => {
 const onSubmit = () => {
   state.isShowDialog = false
   request(apiStoreData.api.value.node_nodeSort, nodeSortHandler(state.node_list)).then((res) => {
-    nodeStore.getNodeWithTraffic({search: '', page_num: 1, page_size: 30, date: [],})
+    emit('refresh')
   })
 }
-
-
 // 创建sortable实例
 function initSortable(className: string) {
   // 获取表格row的父节点
@@ -104,14 +103,6 @@ function initSortable(className: string) {
     },
   });
 };
-
-// 设置表格row的class
-// function tableRowClassName(row: any) {
-//   if (row.disabled) {
-//     return "disabled";
-//   }
-//   return "";
-// };
 
 // 暴露变量
 defineExpose({

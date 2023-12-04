@@ -167,6 +167,7 @@ const onGetEmailCode = () => {
     return
   }
   state.isCountDown = true
+  console.log("loginData.value:",loginData.value)
   userStore.sendEmailCode(loginData.value.user_name).then((res)=>{
     state.isCountDown = true
     ElMessage.success(res.msg)

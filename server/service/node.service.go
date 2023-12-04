@@ -28,7 +28,7 @@ func GetNodeTraffic(params *model.FieldParamsReq) (*model.NodesWithTotal, error)
 	if dataSql == "" {
 		dataSql = "id > 0"
 	}
-	err = global.DB.Debug().Model(&model.Node{}).Count(&nodesWithTotal.Total).Where(dataSql).Preload("TrafficLogs", global.DB.Where("created_at > ? and created_at < ?", startTime, endTime)).Preload("Access").Find(&nodesWithTotal.NodeList).Error
+	err = global.DB.Model(&model.Node{}).Count(&nodesWithTotal.Total).Where(dataSql).Preload("TrafficLogs", global.DB.Where("created_at > ? and created_at < ?", startTime, endTime)).Preload("Access").Find(&nodesWithTotal.NodeList).Error
 	if err != nil {
 		return nil, err
 	}

@@ -204,7 +204,7 @@ export const useUserStore = defineStore('userInfo', {
         //发送验证码
         async sendEmailCode(email:string){
             const apiStore = useApiStore()
-            return await request(apiStore.staticApi.public_getEmailCode, {user_name:this.registerData.user_name+this.registerData.email_suffix})
+            return await request(apiStore.staticApi.public_getEmailCode, {user_name:email})
         },
     },
 });

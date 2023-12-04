@@ -49,6 +49,7 @@
         <el-table-column fixed type="index" label="序号" width="60"/>
         <el-table-column prop="remarks" label="节点名称" show-overflow-tooltip width="200" sortable="custom"></el-table-column>
         <el-table-column prop="id" label="节点ID" show-overflow-tooltip width="60" sortable="custom"></el-table-column>
+        <el-table-column prop="node_order" label="排序" show-overflow-tooltip width="60" sortable="custom"></el-table-column>
         <el-table-column prop="address" label="节点地址" show-overflow-tooltip width="150" sortable="custom"></el-table-column>
         <el-table-column prop="port" label="节点端口" width="80" show-overflow-tooltip sortable="custom"></el-table-column>
         <el-table-column prop="sort" label="协议类型" width="120" show-overflow-tooltip sortable="custom">
@@ -106,7 +107,7 @@
       />
     </el-card>
     <NodeDialog ref="nodeDialogRef" @refresh="onGetNode()"/>
-    <NodeSortDialog ref="nodeSortDialogRef"></NodeSortDialog>
+    <NodeSortDialog ref="nodeSortDialogRef" @refresh="onGetNode()"></NodeSortDialog>
     <NodeSharedDialog ref="nodeSharedDialogRef"></NodeSharedDialog>
 
   </div>
@@ -199,6 +200,8 @@ const defaultFieldParams = (start: string, end: string) => {
     {field: 'created_at', field_chinese_name: '', field_type: '', condition: '>', condition_value: start, operator: ''},
     {field: 'created_at', field_chinese_name: '', field_type: '', condition: '<', condition_value: end, operator: 'AND',}
   ] as FieldParams[]
+  reportStoreData.reportParams.value.pagination = {page_num: 1, page_size: 30, order_by: 'node_order',} as Pagination
+
 }
 
 //查询节点

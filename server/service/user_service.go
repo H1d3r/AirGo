@@ -210,7 +210,7 @@ func GetUserlist(params *model.FieldParamsReq) (*model.CommonDataResp, error) {
 	var userList []model.User
 	_, dataSql := CommonSqlFindSqlHandler(params)
 	dataSql = dataSql[strings.Index(dataSql, "WHERE ")+6:]
-	err := global.DB.Model(&model.User{}).Where(dataSql).Count(&data.Total).Preload("RoleGroup").Find(&userList).Error
+	err := global.DB.Model(&model.User{}).Count(&data.Total).Where(dataSql).Preload("RoleGroup").Find(&userList).Error
 	if err != nil {
 		global.Logrus.Error("GetUserlist error:", err.Error())
 		return nil, err
