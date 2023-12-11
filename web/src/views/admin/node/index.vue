@@ -206,8 +206,6 @@ const defaultFieldParams = (start: string, end: string) => {
 
 //查询节点
 function onGetNode() {
-  initDate()
-  defaultFieldParams(state.this_month[0],state.this_month[1])
   nodeStore.getNodeWithTraffic(reportStoreData.reportParams.value)
 }
 function initDate() {
@@ -272,7 +270,8 @@ const sortChange = (column: any) => {
 
 }
 onBeforeMount(()=>{
-
+  initDate()
+  defaultFieldParams(state.this_month[0],state.this_month[1])
 });
 
 onMounted(() => {

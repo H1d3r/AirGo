@@ -163,6 +163,7 @@ const defaultFieldParams = () => {
   reportStoreData.reportParams.value.table_name = 'orders'
   reportStoreData.reportParams.value.field_params_list = [
     {field: 'out_trade_no', field_chinese_name: '', field_type: '', condition: 'like', condition_value: '', operator: '',} as FieldParams]
+  reportStoreData.reportParams.value.pagination = {page_num: 1, page_size: 30, order_by: 'id DESC',} as Pagination
 }
 //
 onBeforeMount(() => {

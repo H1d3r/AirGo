@@ -8,7 +8,6 @@ import (
 	"github.com/ppoonk/AirGo/utils/response"
 )
 
-// 新增路由控制
 func NewRoutes(ctx *gin.Context) {
 	var acc model.Access
 	err := ctx.ShouldBind(&acc)

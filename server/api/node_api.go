@@ -55,7 +55,7 @@ func DeleteNode(ctx *gin.Context) {
 		response.Fail("DeleteNode error:"+err.Error(), nil, ctx)
 		return
 	}
-	err = service.CommonSqlDelete[model.Node, model.Node](node)
+	err = service.DeleteNode(&node)
 	if err != nil {
 		global.Logrus.Error(err.Error())
 		response.Fail("DeleteNode error:"+err.Error(), nil, ctx)

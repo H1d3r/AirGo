@@ -13,9 +13,14 @@ import (
 	"time"
 )
 
-// 发送base64验证码
+// GetBase64Captcha
+// @Tags public_api
+// @Summary 发送base64验证码
+// @Description  发送base64验证码
+// @Produce json
+// @Router 	/api/public/getBase64Captcha [get]
+// @Success 200 {object} model.Base64CaptchaInfo
 func GetBase64Captcha(ctx *gin.Context) {
-
 	id, b64s, err := global.Base64Captcha.Generate()
 	if err != nil {
 		global.Logrus.Error(err.Error())
@@ -29,23 +34,6 @@ func GetBase64Captcha(ctx *gin.Context) {
 
 }
 
-// 验证base64验证码
-func VerifyBase64Captcha(ctx *gin.Context) {
-	var b64Captcha model.Base64CaptchaInfo
-	err := ctx.ShouldBind(&b64Captcha)
-	if err != nil {
-		global.Logrus.Error(err.Error())
-		response.Fail("VerifyBase64Captcha error:"+err.Error(), nil, ctx)
-		return
-	}
-	if !global.Base64CaptchaStore.Verify(b64Captcha.ID, b64Captcha.B64s, true) {
-		response.Fail("VerifyBase64Captcha error:"+err.Error(), nil, ctx)
-		return
-	}
-	response.OK("VerifyBase64Captcha success", nil, ctx)
-}
-
-// 邮箱验证码
 func GetMailCode(ctx *gin.Context) {
 	var u model.UserRegisterEmail
 	err := ctx.ShouldBind(&u)

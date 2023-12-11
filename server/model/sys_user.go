@@ -1,6 +1,7 @@
 package model
 
 import (
+	"sync"
 	"time"
 
 	uuid "github.com/satori/go.uuid"
@@ -84,4 +85,16 @@ type UserChangePassword struct {
 	Password   string `json:"password" binding:"required,max=20,min=4"`                     // 密码
 	RePassword string `json:"re_password" binding:"required,eqfield=Password,max=20,min=4"` // 密码
 	EmailCode  string `json:"email_code"`
+}
+
+// 全部在线用户
+type OnlineUsers struct {
+	Lock     sync.RWMutex
+	UsersMap map[int64]OnlineUserItem
+}
+
+type OnlineUserItem struct {
+	NodeConnector  int64           //连接客户端数
+	NodeMap        map[int64]int64 //
+	LastUpdateTime time.Time       //上次统计连接数的时间，数据来源：节点上报
 }

@@ -62,15 +62,6 @@ declare interface Captcha {
     open_captcha: number;
     open_captcha_time_out: number;
 }
-
-declare interface Pay {
-    return_url: string;
-    app_id: string;
-    private_key: string;
-    ali_public_key: string;
-    encrypt_key: string;
-}
-
 declare interface Email {
     email_from: string;
     email_from_alias: string;

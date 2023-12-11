@@ -32,7 +32,7 @@ var (
 	GoroutinePool      *ants.Pool                      //线程池
 	Crontab            *cron.Cron                      //定时任务
 	TGBot              *tgbotapi.BotAPI                //tg bot
-	ContextGroup       *model.ContextGroup
+	ContextGroup       *model.ContextGroup             //
 )
 
 const (

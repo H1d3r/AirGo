@@ -85,3 +85,53 @@ func UpdateNode(node *model.Node) error {
 	err := global.DB.Save(&node).Error
 	return err
 }
+
+// 删除节点
+func DeleteNode(node *model.Node) error {
+	var funcs = []func() error{
+		func() error { //删除商品关联的节点
+			return global.DB.Where("node_id = ?", node.ID).Delete(&model.GoodsAndNodes{}).Error
+		},
+		func() error { //删除节点关联的访问控制
+			return global.DB.Model(&model.Node{ID: node.ID}).Association("Access").Replace(nil)
+		},
+		func() error { //删除节点关联的流量统计信息
+			return global.DB.Where("node_id = ?", node.ID).Delete(&model.TrafficLog{}).Error
+		},
+		func() error { //删除节点
+			return global.DB.Delete(&node).Error
+		},
+	}
+	for _, v := range funcs {
+		err := v()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// 删除节点,临时代码，处理之前版本删除节点遗留的数据库垃圾数据
+func DeleteNodeTemp() error {
+	var ids []int64
+	global.DB.Model(&model.Node{}).Select("id").Find(&ids)
+
+	var funcs = []func() error{
+		func() error { //删除商品关联的节点
+			return global.DB.Where("node_id NOT IN ?", ids).Delete(&model.GoodsAndNodes{}).Error
+		},
+		func() error { //删除节点关联的访问控制
+			return global.DB.Where("node_id NOT IN ?", ids).Delete(&model.NodeAndAccess{}).Error
+		},
+		func() error { //删除节点关联的流量统计信息
+			return global.DB.Where("node_id NOT IN ?", ids).Delete(&model.TrafficLog{}).Error
+		},
+	}
+	for _, v := range funcs {
+		err := v()
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}

@@ -4,9 +4,14 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/ppoonk/AirGo/api"
+	"github.com/ppoonk/AirGo/docs"
 	"github.com/ppoonk/AirGo/global"
 	"github.com/ppoonk/AirGo/middleware"
 	"github.com/ppoonk/AirGo/web"
+	swaggerfiles "github.com/swaggo/files"     // swagger embed files
+	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
 	"net/http"
 	"os"
 	"os/signal"
@@ -18,11 +23,19 @@ import (
 func InitRouter() {
 	gin.SetMode(gin.ReleaseMode) //ReleaseMode TestMode DebugMode
 	Router := gin.Default()
+	//Router.Use(middleware.Rpc())
 	Router.Use(middleware.Serve("/", middleware.EmbedFolder(web.Static, "web"))) // targetPtah=web 是embed和web文件夹的相对路径
 	Router.Use(middleware.Cors(), middleware.Recovery())
 
 	//固定路由组，不进行casbin校验
 	RouterGroupStatic := Router.Group("/api")
+	//swagger
+	docs.SwaggerInfo.BasePath = ""
+	swaggerRouter := RouterGroupStatic.Group("/swagger")
+	{
+		swaggerRouter.GET("/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	}
+
 	//public
 	publicRouter := RouterGroupStatic.Group("/public").Use(middleware.RateLimitIP())
 	{
@@ -240,6 +253,8 @@ func InitRouter() {
 		ticketRouter.POST("/getTicketMessage", api.GetTicketMessage)
 	}
 
+	// 为http/2配置参数
+	h2Handle := h2c.NewHandler(Router, &http2.Server{}) // 禁用TLS加密协议
 	srv := &http.Server{
 		Addr:    ":" + strconv.Itoa(global.Config.SystemParams.HTTPPort),
 		Handler: Router,
@@ -247,6 +262,10 @@ func InitRouter() {
 	srvTls := &http.Server{
 		Addr:    ":" + strconv.Itoa(global.Config.SystemParams.HTTPSPort),
 		Handler: Router,
+	}
+	h2 := &http.Server{
+		Addr:    ":" + strconv.Itoa(global.Config.SystemParams.GRPCPort),
+		Handler: h2Handle,
 	}
 
 	go func() {
@@ -259,6 +278,12 @@ func InitRouter() {
 		// 服务连接
 		if err := srvTls.ListenAndServeTLS("./air.cer", "./air.key"); err != nil && err != http.ErrServerClosed {
 			global.Logrus.Error("tls listen: %s\n", err)
+		}
+	}()
+	go func() {
+		// 服务连接
+		if err := h2.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			global.Logrus.Fatalf("listen: %s\n", err)
 		}
 	}()
 

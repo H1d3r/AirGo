@@ -48,7 +48,8 @@ func InitializeAll() {
 	InitContextGroup() //
 	InitTGBot()        //初始化tg bot
 	InitCrontab()      //定时任务
-	InitRouter()       //初始总路由，放在最后
+	//InitOnlineUsers()  //
+	InitRouter() //初始总路由，放在最后
 
 }
 
@@ -61,54 +62,48 @@ func InitializeResetAdmin() {
 
 // 升级核心
 func InitializeUpdate() {
-	fmt.Println("升级核心...")
 	global.VP = InitViper() //初始化Viper
 	global.DB = Gorm()      //gorm连接数据库
 	InitServer()            //加载全局系统配置
-	//升级数据库casbin_rule表
-	fmt.Println("升级数据库casbin_rule表")
-	err := global.DB.Where("id > 0").Delete(&gormadapter.CasbinRule{}).Error
-	if err != nil {
-		global.Logrus.Error(err.Error())
-		fmt.Println("error:", err.Error())
-		return
-	}
-	err = InsertIntoCasbinRule()
-	if err != nil {
-		global.Logrus.Error(err.Error())
-		fmt.Println("error:", err.Error())
-		return
-	}
 
-	//升级数据库菜单
-	fmt.Println("升级数据库菜单")
-	err = global.DB.Where("id > 0").Delete(&model.DynamicRoute{}).Error
-	if err != nil {
-		global.Logrus.Error(err.Error())
-		fmt.Println("error:", err.Error())
-		return
+	var funcs = []func() error{
+		func() error {
+			fmt.Println("升级数据库casbin_rule表")
+			return global.DB.Where("id > 0").Delete(&gormadapter.CasbinRule{}).Error
+		},
+		func() error {
+			return InsertIntoCasbinRule()
+		},
+		func() error {
+			fmt.Println("升级数据库菜单")
+			return global.DB.Where("id > 0").Delete(&model.DynamicRoute{}).Error
+		},
+		func() error {
+			return InsertIntoDynamicRoute()
+		},
+		func() error {
+			fmt.Println("升级角色和菜单")
+			return global.DB.Where("role_id > 0").Delete(&model.RoleAndMenu{}).Error
+		},
+		func() error {
+			return InsertIntoRoleAndMenu()
+		},
+		//临时代码，处理之前版本删除节点遗留的数据库垃圾数据
+		func() error {
+			fmt.Println("处理遗留垃圾数据")
+			return service.DeleteNodeTemp()
+		},
 	}
-	err = InsertIntoDynamicRoute()
-	if err != nil {
-		global.Logrus.Error(err.Error())
-		fmt.Println("error:", err.Error())
-		return
+	for _, v := range funcs {
+		err := v()
+		if err != nil {
+			global.Logrus.Error(err.Error())
+			fmt.Println("升级核心出错：", err.Error())
+			return
+		}
 	}
+	fmt.Println("升级核心完成")
 
-	//角色和菜单
-	fmt.Println("升级角色和菜单")
-	err = global.DB.Where("role_id > 0").Delete(&model.RoleAndMenu{}).Error
-	if err != nil {
-		global.Logrus.Error(err.Error())
-		fmt.Println("error:", err.Error())
-		return
-	}
-	err = InsertIntoRoleAndMenu()
-	if err != nil {
-		global.Logrus.Error(err.Error())
-		fmt.Println("error:", err.Error())
-		return
-	}
 }
 
 func InitLogrus() {
@@ -179,4 +174,7 @@ func InitContextGroup() {
 }
 func InitTGBot() {
 	service.TGBotStartListen()
+}
+func InitOnlineUsers() {
+
 }

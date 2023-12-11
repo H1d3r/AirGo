@@ -1,23 +1,19 @@
 /**
- * 后端时间字符串转换格式，"2023-05-29T17:28:47.50276+08:00" ---> "2023-05-29 17:28:47"
+ * 后端时间字符串时区转换，"2023-05-29T17:28:47.50276+08:00" ---> "2023/05/29 17:28:47"
  * @param strTime
  * @constructor
  */
 export function DateStrtoTime(strTime: string) {
-    if (!strTime) {
-        return '';
-    }
-    if (strTime.indexOf(".") !== -1) {
-        strTime = strTime.slice(0, strTime.indexOf("."))
-    } else if (strTime.indexOf(".") == -1 && strTime.indexOf("+") !== -1) {
-        strTime = strTime.slice(0, strTime.indexOf("+"))
-    }
-    strTime = strTime.replace(/T/g, ' ');
-    strTime = strTime.replace(/Z/g, '');
-    return strTime;
+    const date = new Date(strTime);
+    return date.toLocaleString();
 }
-//得到标准时区的时间的函数，参数i为时区值数字，比如北京为东八区则输进8,西5输入-5
-export function GetLocalTime(i:number) {
+
+/**
+ * 得到标准时区的时间的函数，参数i为时区值数字，比如北京为东八区则输进8,西5输入-5
+ * @param i
+ * @constructor
+ */
+export function GetLocalTime(i: number) {
     if (typeof i !== 'number') return;
     var d = new Date();
     //得到1970年一月一日到现在的秒数
@@ -28,9 +24,6 @@ export function GetLocalTime(i:number) {
     var utcTime = len + offset;
     return new Date(utcTime + 3600000 * i);
 }
-// console.log("东八区-北京时间：" + getLocalTime(8));
-
-
 
 /**
  * 时间日期转换

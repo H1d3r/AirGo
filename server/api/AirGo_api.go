@@ -120,7 +120,6 @@ func AGGetUserlist(ctx *gin.Context) {
 		return
 	}
 	//处理全局限制用户；连接数，待写
-
 	//处理ss加密
 	switch node.NodeType {
 	case "shadowsocks":
@@ -142,6 +141,25 @@ func AGGetUserlist(ctx *gin.Context) {
 	default:
 	}
 	EtagHandler(users, ctx)
+}
+func ssEncryptionHandler(node model.Node, user *model.AGUserInfo) {
+	switch node.NodeType {
+	case "shadowsocks":
+		if strings.HasPrefix(node.Scy, "2022") {
+			//
+			p := user.UUID.String()
+			if node.Scy == "2022-blake3-aes-128-gcm" {
+				p = p[:16]
+			}
+			p = base64.StdEncoding.EncodeToString([]byte(p))
+			user.Passwd = p
+
+		} else {
+			user.Passwd = user.UUID.String()
+		}
+	default:
+
+	}
 }
 
 func AGReportUserTraffic(ctx *gin.Context) {

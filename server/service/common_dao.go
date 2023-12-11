@@ -19,7 +19,7 @@ func CommonSqlFind[T1, T2, T3 any](params T2) (T3, int64, error) {
 		err = global.DB.Model(&modelType).Where(params).Find(&res).Error
 
 	} else {
-		err = global.DB.Model(&modelType).Where(&params).Count(&total).Find(&res).Error
+		err = global.DB.Model(&modelType).Count(&total).Where(&params).Find(&res).Error
 	}
 	return res, total, err
 }
@@ -45,7 +45,7 @@ func CommonSqlLast[T1, T2, T3 any](params T2) (T3, int64, error) {
 		err = global.DB.Model(&modelType).Where(params).First(&res).Error
 
 	} else {
-		err = global.DB.Model(&modelType).Where(&params).Count(&total).Last(&res).Error
+		err = global.DB.Model(&modelType).Count(&total).Where(&params).Last(&res).Error
 	}
 	return res, total, err
 }
@@ -57,10 +57,10 @@ func CommonSqlFindWithPagination[T1, T2, T3 any](params T2, paginationParams mod
 	var modelType T1
 	var total int64
 	if reflect.TypeOf(params).String() == reflect.String.String() {
-		err = global.DB.Model(&modelType).Where(params).Count(&total).Limit(int(paginationParams.PageSize)).Offset((int(paginationParams.PageNum) - 1) * int(paginationParams.PageSize)).Find(&res).Error
+		err = global.DB.Model(&modelType).Count(&total).Where(params).Limit(int(paginationParams.PageSize)).Offset((int(paginationParams.PageNum) - 1) * int(paginationParams.PageSize)).Find(&res).Error
 
 	} else {
-		err = global.DB.Model(&modelType).Where(&params).Count(&total).Limit(int(paginationParams.PageSize)).Offset((int(paginationParams.PageNum) - 1) * int(paginationParams.PageSize)).Find(&res).Error
+		err = global.DB.Model(&modelType).Count(&total).Where(&params).Limit(int(paginationParams.PageSize)).Offset((int(paginationParams.PageNum) - 1) * int(paginationParams.PageSize)).Find(&res).Error
 	}
 	return res, total, err
 }

@@ -21,7 +21,7 @@ func GetUserOrders(params *model.FieldParamsReq, uIDInt int64) (*model.CommonDat
 	dataSql = dataSql[strings.Index(dataSql, "WHERE ")+6:]
 	//拼接查询参数
 	dataSql = fmt.Sprintf("user_id = %d AND %s", uIDInt, dataSql)
-	err := global.DB.Model(&model.Orders{}).Where(dataSql).Count(&data.Total).Find(&orderList).Error
+	err := global.DB.Model(&model.Orders{}).Count(&data.Total).Where(dataSql).Find(&orderList).Error
 	if err != nil {
 		global.Logrus.Error("GetUserOrders error:", err.Error())
 		return nil, err

@@ -5,7 +5,8 @@
       width="80%" destroy-on-close
       align-center
   >
-    <el-table class="nodeSort" :data="state.node_list" row-key="id" height="100%" style="width: 100%;flex: 1;">
+    <el-table class="nodeSort" :data="nodeManageData.nodes.node_list" row-key="id" height="100%"
+              style="width: 100%;flex: 1;">
       <el-table-column type="index" label="序号" show-overflow-tooltip width="60" fixed></el-table-column>
       <el-table-column prop="remarks" label="节点名称" show-overflow-tooltip width="300" fixed></el-table-column>
       <el-table-column prop="id" label="节点ID" show-overflow-tooltip width="60" fixed></el-table-column>
@@ -31,30 +32,26 @@
 import {nextTick, reactive} from "vue";
 import Sortable from "sortablejs";
 import {useNodeStore} from "/@/stores/nodeStore";
-import {ElMessage} from "element-plus";
 import {request} from "/@/utils/request";
 import {useApiStore} from "/@/stores/apiStore";
 import {storeToRefs} from "pinia";
 
 const nodeStore = useNodeStore()
+const {nodeManageData} = storeToRefs(nodeStore)
 
 const apiStore = useApiStore()
 const apiStoreData = storeToRefs(apiStore)
-const emit = defineEmits(['refresh'])
+const emit = defineEmits(['refresh', 'onGetNode'])
 
 //定义参数
 const state = reactive({
   type: "",
   title: "节点排序",
   isShowDialog: false,
-  node_list: [] as NodeInfo[],
 })
 // 打开弹窗
 const openDialog = () => {
   state.isShowDialog = true
-  request(apiStoreData.api.value.node_getAllNode).then((res) => {
-    state.node_list = res.data
-  })
   nextTick(() => {
     initSortable("nodeSort")
   })
@@ -73,10 +70,11 @@ const nodeSortHandler = (data: Array<any>) => {
 //确认提交
 const onSubmit = () => {
   state.isShowDialog = false
-  request(apiStoreData.api.value.node_nodeSort, nodeSortHandler(state.node_list)).then((res) => {
+  request(apiStoreData.api.value.node_nodeSort, nodeSortHandler(nodeManageData.value.nodes.node_list)).then((res) => {
     emit('refresh')
   })
 }
+
 // 创建sortable实例
 function initSortable(className: string) {
   // 获取表格row的父节点
@@ -97,9 +95,8 @@ function initSortable(className: string) {
     // 结束拖动事件
     onEnd: (evt: any) => {
       // console.log("结束拖动", `拖动前索引${evt.oldIndex}---拖动后索引${evt.newIndex}`);
-      const currRow = state.node_list.splice(evt.oldIndex, 1)[0];
-      state.node_list.splice(evt.newIndex, 0, currRow);
-      // console.log("结束拖动", state.node_list);
+      const currRow = nodeManageData.value.nodes.node_list.splice(evt.oldIndex, 1)[0];
+      nodeManageData.value.nodes.node_list.splice(evt.newIndex, 0, currRow);
     },
   });
 };

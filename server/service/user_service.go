@@ -28,7 +28,7 @@ func Register(u *model.User) error {
 			UUID:           uuid.NewV4(),
 			UserName:       u.UserName,
 			NickName:       u.UserName,
-			Avatar:         "",                                      //头像
+			Avatar:         u.Avatar,                                //头像
 			Password:       encrypt_plugin.BcryptEncode(u.Password), //密码
 			RoleGroup:      []model.Role{{ID: 2}},                   //默认角色：普通用户角色
 			InvitationCode: encrypt_plugin.RandomString(8),          //邀请码
@@ -146,6 +146,7 @@ func HandleUserSubscribe(u *model.User, goods *model.Goods) *model.User {
 	u.SubscribeInfo.GoodsID = goods.ID           //当前订购的套餐
 	u.SubscribeInfo.GoodsSubject = goods.Subject //套餐标题
 	u.SubscribeInfo.SubStatus = true             //订阅状态
+
 	t := time.Now().AddDate(0, 0, int(goods.ExpirationDate))
 	u.SubscribeInfo.ExpiredAt = &t //过期时间
 	if goods.NodeConnector != 0 {
@@ -162,7 +163,7 @@ func HandleUserSubscribe(u *model.User, goods *model.Goods) *model.User {
 		u.SubscribeInfo.U = 0
 		u.SubscribeInfo.D = 0
 	}
-
+	u.SubscribeInfo.ResetDay = goods.ResetDay //流量重置日
 	return u
 }
 
@@ -186,8 +187,21 @@ func UpdateUserTrafficInfo(userArr []model.User, userIds []int64) error {
 
 // 用户流量，有效期 检测任务
 func UserExpiryCheck() error {
-	//fmt.Println("开始用户流量，有效期 检测任务")
-	return global.DB.Exec("update user set sub_status = 0 where expired_at < ? or ( u + d ) > t", time.Now()).Error
+	err := global.DB.Exec("UPDATE user SET sub_status = 0 WHERE expired_at < ? or ( u + d ) > t", time.Now()).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// 用户流量重置任务
+func UserTrafficReset() error {
+	day := time.Now().Day()
+	err := global.DB.Exec("UPDATE user SET u = 0, d = 0 WHERE reset_day = ?", day).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // 修改混淆

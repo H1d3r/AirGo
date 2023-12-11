@@ -46,7 +46,7 @@ func Register(ctx *gin.Context) {
 		return
 	}
 	//校验邮箱验证码
-	userEmail := u.UserName + u.EmailSuffix
+	userEmail := u.UserName + u.EmailSuffix //处理邮箱后缀
 	if global.Server.Subscribe.EnableEmailCode {
 		cacheEmail, ok := global.LocalCache.Get(userEmail + "emailcode")
 		if ok {
@@ -61,11 +61,17 @@ func Register(ctx *gin.Context) {
 		}
 	}
 	global.LocalCache.Delete(userEmail + "emailcode")
-	//处理邮箱后缀
+
+	//初步构建用户信息
+	var avatar string
+	if u.EmailSuffix == "@qq" {
+		avatar = fmt.Sprintf("https://q1.qlogo.cn/g?b=qq&nk=%s&s=100", u.UserName)
+	}
 	err = service.Register(&model.User{
 		UserName:     userEmail,
 		Password:     u.Password,
 		ReferrerCode: u.ReferrerCode,
+		Avatar:       avatar,
 	})
 	if err != nil {
 		global.Logrus.Error(err.Error())

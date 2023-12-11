@@ -84,6 +84,7 @@
             </el-tag>
           </template>
         </el-table-column>
+        <el-table-column label="限速" prop="subscribe_info.node_speedlimit" show-overflow-tooltip sortable="custom"></el-table-column>
 
         <el-table-column label="余额" show-overflow-tooltip sortable="custom">
           <template #default="scope">
@@ -162,6 +163,7 @@ const defaultFieldParams = () => {
       condition_value: '',
       operator: '',
     } as FieldParams]
+  reportStoreData.reportParams.value.pagination = {page_num: 1, page_size: 30, order_by: 'id',} as Pagination
 }
 // 打开新增用户弹窗
 const onOpenAddUser = (type: string) => {
